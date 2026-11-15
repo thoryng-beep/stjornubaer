@@ -147,6 +147,14 @@ h1 { font-family: var(--display); font-weight: 800; font-size: clamp(24px, 6.5vw
 .golfbar span { background: var(--card); border: 2px solid var(--line); border-radius: 999px; padding: 6px 14px; font-weight: 800; }
 .golfcv { display: block; width: min(100%, calc((100dvh - 250px) * 600 / 340)); aspect-ratio: 600 / 340; margin: 0 auto; border-radius: 18px; border: 3px solid var(--ink); touch-action: none; background: #4fae6a; cursor: crosshair; }
 .golfmsg { text-align: center; align-items: center; }
+.badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; }
+.badge { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 8px 6px; border-radius: 16px; background: #f6f3ff; }
+.badge.on { background: #fff8e1; }
+.badge svg { width: 62px; height: auto; }
+.badge .bn { font-weight: 800; font-size: 14px; line-height: 1.15; }
+.badge .bd { font-size: 12px; color: var(--muted); line-height: 1.25; }
+.bar { width: 100%; height: 7px; border-radius: 4px; background: #e3def2; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--mint); }
 .cb { display: grid; grid-template-columns: repeat(8, 1fr); width: min(100%, 440px); margin: 0 auto; border: 3px solid var(--ink); border-radius: 8px; overflow: hidden; }
 .sqr { aspect-ratio: 1; border: 0; padding: 0; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: min(8.4vw, 44px); line-height: 1; background: #fff1dc; }
 .sqr.dk { background: #c98f5a; }
@@ -442,7 +450,10 @@ const OUT = [
   { id:'vardeldur', name:'Varðeldur', price:8, w:12, vb:'0 0 60 56', svg:`<path d="M30 8 Q42 22 38 34 Q46 28 44 20 Q54 34 44 46 H16 Q6 34 16 22 Q18 30 22 32 Q16 18 30 8Z" fill="#ff8a3d" ${S1}/><path d="M30 24 Q36 32 34 40 H26 Q24 32 30 24Z" fill="#ffd34d"/><path d="M8 52 L52 42 M8 42 L52 52" stroke="#8a5a33" stroke-width="6" stroke-linecap="round"/>` },
   { id:'hjol', name:'Reiðhjól', price:16, w:24, vb:'0 0 100 62', svg:`<circle cx="22" cy="40" r="18" fill="none" stroke="${O}" stroke-width="3.4"/><circle cx="78" cy="40" r="18" fill="none" stroke="${O}" stroke-width="3.4"/><path d="M22 40 L40 16 H70 L78 40 M40 16 L50 40 L70 16 M50 40 L22 40" stroke="#e94b3c" stroke-width="4" fill="none" stroke-linejoin="round"/><path d="M36 12 H46 M68 16 L66 8 H74" stroke="${O}" stroke-width="3" stroke-linecap="round"/>` },
 ];
-const ITEM = Object.fromEntries([...OUT, ...SPORT, ...FURN, ...SQ, ...MKITEMS, ...PETS, ...FOOD, ...GROWN, ...XMAS, ...RARE].map(i => [i.id, i]));
+const SPECIAL = [
+  { id:'merkjatafla', name:'Merkjatafla', price:0, w:22, kind:'wall', vb:'0 0 90 70', svg:`<rect x="3" y="3" width="84" height="64" rx="5" fill="#a8703f" ${S}/><rect x="9" y="9" width="72" height="52" rx="2" fill="#e3b77e"/>${[[22, '#ffd34d', '★'], [45, '#5ec9a8', 'Aa'], [68, '#ff8fc1', '+']].map(([x, c, t]) => `<path d="M${x - 5} 14 L${x - 2} 26 M${x + 5} 14 L${x + 2} 26" stroke="#e94b3c" stroke-width="3.5"/><circle cx="${x}" cy="38" r="10" fill="${c}" stroke="${O}" stroke-width="1.6"/><text x="${x}" y="42" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="9" fill="${O}">${t}</text>`).join('')}<circle cx="45" cy="6" r="2.4" fill="${O}"/>` },
+];
+const ITEM = Object.fromEntries([...SPECIAL, ...OUT, ...SPORT, ...FURN, ...SQ, ...MKITEMS, ...PETS, ...FOOD, ...GROWN, ...XMAS, ...RARE].map(i => [i.id, i]));
 const itemSVG = it => `<svg viewBox="${it.vb}" xmlns="http://www.w3.org/2000/svg">${it.svg}</svg>`;
 
 /* ================= hús ================= */
@@ -882,6 +893,7 @@ const TITLES = { town: 'Stjörnubær', skoli: 'Skólinn', heimili: 'Heimilisbú�
 function go(v) { revertTry(); $('ask').hidden = true; st.view = v; sel = null; if (v !== 'town') st.at = v === 'house' ? 'h:' + st.cur : v; save(); render(); window.scrollTo(0, 0); }
 $('back').onclick = () => go('town');
 function render() {
+  checkBadges();
   $('coinNum').textContent = fmt(st.coins);
   $('back').hidden = st.view === 'town';
   $('title').textContent = st.view === 'house' ? HOUSE[st.cur].name : TITLES[st.view];
@@ -1009,6 +1021,7 @@ function renderTown() {
     <div class="mapbox"><div class="mapwrap" id="mapwrap">${mapSVG()}</div><button class="mapzoom" id="mapzoom">${st.mapFit ? 'Stækka kortið' : 'Sjá allan bæinn'}</button>${st.mapSeen ? '' : '<div class="maphint" id="maphint">← Strjúktu til að skoða bæinn →</div>'}</div>
     <div class="mapinfo">
       <div><p class="intro">Ýttu á hús eða búð til að fara inn. Í skólanum safnarðu stjörnum til að kaupa dót og ný hús. Sundlaugin er ókeypis!</p>${yuleNote()}${storageBroken ? '<p class="savewarn" style="margin-top:8px">Þessi vafri getur ekki vistað leikinn. Fullorðinn getur tekið afrit undir nafninu efst.</p>' : ''}</div>
+      <div class="sec"><h3>Merkin mín</h3><button class="opt" id="badgesBtn">${BADGES.filter(b => (st.badges || {})[b[0]]).length} af ${BADGES.length} merkjum</button></div>
       <div class="sec"><h3>Húsin þín</h3><div class="opts">${mine.map(h => `<button class="opt" data-home="${h.id}">${h.name}<span class="price" style="color:var(--muted)">${hlutir(cnt(h.id))}</span></button>`).join('')}</div></div>
     </div></div>`;
   const wrap = $('mapwrap'), scale = sizeMap();
@@ -1030,6 +1043,7 @@ function renderTown() {
   wrap.addEventListener('click', e => { if (panned) { panned = false; return; } const g = e.target.closest('.spot'); if (g) openSpot(g.dataset.spot); });
   wrap.addEventListener('keydown', e => { const g = e.target.closest?.('.spot'); if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openSpot(g.dataset.spot); } });
   $('view').querySelectorAll('[data-home]').forEach(b => b.onclick = () => { st.cur = b.dataset.home; go('house'); });
+  $('badgesBtn').onclick = openBadges;
   $('mapzoom').onclick = () => { st.mapFit = !st.mapFit; save(); renderTown(); };
   const yi = yuleIdx(); st.yule = st.yule || {};
   if (yi >= 0 && !st.yule[dayKey()]) setTimeout(() => yuleVisit(yi), 400);
@@ -1154,7 +1168,7 @@ function bindRoom() {
     if (!drag) return;
     const d = drag; drag = null;
     if (d.moved) { st.moved = true; save(); updateHint(); }
-    else if (d.uid !== 'me') { const it = ITEM[d.p.id]; if (it.pet) { squish(d.el.querySelector('svg'), 'hop'); patPet(d.p, d.el); } else if (it.sq) squish(d.el.querySelector('svg')); else if (it.bounce) squish(d.el.querySelector('svg'), 'hop'); else if (it.id === 'isskapur') setTimeout(openFridge, 0); }
+    else if (d.uid !== 'me') { const it = ITEM[d.p.id]; if (it.pet) { squish(d.el.querySelector('svg'), 'hop'); patPet(d.p, d.el); } else if (it.sq) squish(d.el.querySelector('svg')); else if (it.bounce) squish(d.el.querySelector('svg'), 'hop'); else if (it.id === 'isskapur') setTimeout(openFridge, 0); else if (it.id === 'merkjatafla') setTimeout(openBadges, 0); }
     sel = d.uid === 'me' ? 'me' : Number(d.uid);
     $('roomin').querySelectorAll('.item').forEach(n => n.classList.toggle('sel', n.dataset.uid == sel));
     renderTools();
@@ -1177,6 +1191,7 @@ function renderTools() {
   $('tF').onclick = () => { p.f = !p.f; save(); renderRoom(); };
   $('tX').onclick = () => { const r = curRoom(); r.placed = r.placed.filter(q => q !== p); st.inv[p.id] = (st.inv[p.id] || 0) + 1; sel = null; save(); refreshHouse(); };
   const it = ITEM[p.id];
+  if (it.id === 'merkjatafla') { t.insertAdjacentHTML('beforeend', '<button class="sbtn" id="tBadge" style="background:#fff8e1;border-color:#f6d9a8">Skoða merkin</button>'); $('tBadge').onclick = openBadges; }
   if (it.id === 'isskapur' || it.food) {
     t.insertAdjacentHTML('beforeend', `<button class="sbtn" id="tE" style="background:#e3f8ef;border-color:#bfe8d4">${it.food ? 'Borða' : 'Opna ísskápinn'}</button>`);
     $('tE').onclick = () => it.food ? eatPlaced(p) : openFridge();
@@ -1209,7 +1224,7 @@ function feedPet(p) {
   if (!fid) { fid = Object.keys(st.inv).find(id => st.inv[id] > 0 && ITEM[id]?.food); from = st.inv; }
   if (!fid) { toast('Enginn matur til! Kauptu mat í Matarbúðinni.'); return; }
   from[fid]--; if (!from[fid]) delete from[fid];
-  p.fed = Date.now(); save();
+  p.fed = Date.now(); save(); incStat('gaf');
   squish(el?.querySelector('svg'), 'hop'); refreshMood(p, el);
   toast(`${name} borðaði ${ITEM[fid].name.toLowerCase()}. Namm!`);
 }
@@ -1263,7 +1278,7 @@ function tapBed(i, el) {
     renderRoomTabs(); renderGarden(); renderGardenPanel(); return;
   }
   if (b.s >= 3) {
-    const pl = PLANTS[b.p]; st.inv[pl.give] = (st.inv[pl.give] || 0) + pl.n; beds[i] = null; save();
+    const pl = PLANTS[b.p]; st.inv[pl.give] = (st.inv[pl.give] || 0) + pl.n; beds[i] = null; save(); incStat('uppskera');
     toast(`Uppskera! ${pl.n > 1 ? `${pl.n} ${pl.name.toLowerCase()}` : pl.name} í kassann.`);
     renderRoomTabs(); renderGarden(); renderGardenPanel(); return;
   }
@@ -1395,6 +1410,68 @@ function renderMakeup() {
 
 /* ================= ný skólaverkefni ================= */
 const pickN = (a, n) => shuffle(a).slice(0, n);
+/* ---- aðlögun að getu ---- */
+const ADAPT = { math: 4, brot: 3, klukka: 3, runur: 3 };
+function adaptOf(k) { st.adapt = st.adapt || {}; return st.adapt[k] || (st.adapt[k] = { lvl: k === 'math' ? Math.min(Math.max(st.level || 2, 1), 4) : 2, hist: [] }); }
+const mathLevel = () => st.levelMode === 'manual' ? st.level : adaptOf('math').lvl;
+function adaptRecord(k, ok) { if (!ADAPT[k] || (k === 'math' && st.levelMode === 'manual')) return; const a = adaptOf(k); a.hist.push(ok ? 1 : 0); if (a.hist.length > 10) a.hist.shift(); }
+function adaptCheck(k) {
+  if (!ADAPT[k] || (k === 'math' && st.levelMode === 'manual')) return '';
+  const a = adaptOf(k); if (a.hist.length < 8) return '';
+  const acc = a.hist.reduce((x, y) => x + y, 0) / a.hist.length;
+  if (acc >= .85 && a.lvl < ADAPT[k]) { a.lvl++; a.hist = []; save(); return `Frábært! Þér gengur svo vel að þú ferð upp á stig ${a.lvl}.`; }
+  if (acc <= .4 && a.lvl > 1) { a.lvl--; a.hist = []; save(); return `Við gerum þetta aðeins léttara í bili. Nú ertu á stigi ${a.lvl}.`; }
+  return '';
+}
+/* ---- tölfræði og merki ---- */
+const statOf = k => (st.stats || {})[k] || 0;
+function incStat(k, n = 1) { st.stats = st.stats || {}; st.stats[k] = (st.stats[k] || 0) + n; save(); checkBadges(); }
+const BADGES = [
+  ['fyrsta', 'Fyrsta rétta svarið', 'Svaraðu spurningu rétt í skólanum', () => statOf('rett'), 1, '★', '#ffd34d'],
+  ['rett100', 'Hundrað rétt', '100 rétt svör í skólanum', () => statOf('rett'), 100, '100', '#ff8a3d'],
+  ['rett500', 'Fimm hundruð rétt', '500 rétt svör í skólanum', () => statOf('rett'), 500, '500', '#e94b3c'],
+  ['reikn', 'Reikningshaus', '50 rétt í reikningi', () => statOf('rett_math'), 50, '+×', '#ffc83d'],
+  ['lestur', 'Bókaormur', '30 rétt í lestri', () => statOf('rett_read'), 30, 'Aa', '#9fd8f5'],
+  ['stafs', 'Stafsetningarstjarna', '25 rétt í stafsetningu', () => statOf('rett_stafs'), 25, 'ý', '#ffb3cf'],
+  ['enska', 'Enskusnillingur', '25 rétt í ensku', () => statOf('rett_enska'), 25, 'En', '#5ec9a8'],
+  ['klukka', 'Klukkumeistari', '20 rétt á klukkuna', () => statOf('rett_klukka'), 20, '12', '#b48cff'],
+  ['brot', 'Brotasnillingur', '20 rétt í brotum', () => statOf('rett_brot'), 20, '½', '#ff9f80'],
+  ['island', 'Fróðleiksfús', '20 rétt í Ísland og heimurinn', () => statOf('rett_island'), 20, '?', '#6fa8ff'],
+  ['runur', 'Mynsturmeistari', '20 rétt í talnarunum', () => statOf('rett_runur'), 20, '123', '#ffd34d'],
+  ['skak', 'Skákmaður', '10 skákþrautir leystar', () => statOf('skak'), 10, '♞︎', '#c9c2dc'],
+  ['skak2', 'Stórmeistari', '40 skákþrautir leystar', () => statOf('skak'), 40, '♛︎', '#9a92b8'],
+  ['runa3', 'Þrír dagar í röð', 'Kláraðu áskorun dagsins 3 daga í röð', () => Math.max(st.daily?.best || 0, st.daily?.streak || 0), 3, '3', '#ff8fc1'],
+  ['runa7', 'Heil vika', 'Kláraðu áskorun dagsins 7 daga í röð', () => Math.max(st.daily?.best || 0, st.daily?.streak || 0), 7, '7', '#e94b3c'],
+  ['hio', 'Hola í höggi', 'Farðu holu í höggi í minigolfi', () => statOf('hio'), 1, '1', '#4fc59a'],
+  ['golf', 'Golfari', 'Kláraðu 20 minigolfholur', () => statOf('golf'), 20, '20', '#2f8a62'],
+  ['gardur', 'Garðyrkjumeistari', 'Uppskerðu 5 sinnum úr garðinum', () => statOf('uppskera'), 5, '✿︎', '#7fd99a'],
+  ['dyr', 'Dýravinur', 'Gefðu dýrum að borða 10 sinnum', () => statOf('gaf'), 10, '♥︎', '#ff8fc1'],
+  ['skvisi', 'Skvísísafnari', 'Safnaðu 10 skvísí', () => (st.collected || []).length, 10, '10', '#ffd1e3'],
+  ['hus', 'Húsaeigandi', 'Eigðu 3 hús', () => Object.keys(st.homes).length, 3, '⌂︎', '#ff9f80'],
+  ['rikur', 'Stjörnusafnari', 'Eigðu 200 stjörnur í einu', () => st.coins, 200, '★', '#ffd34d'],
+];
+function checkBadges() {
+  st.badges = st.badges || {}; const got = [];
+  for (const [id, name, , val, goal] of BADGES) if (!st.badges[id] && val() >= goal) { st.badges[id] = dayKey(); got.push(name); }
+  if (!got.length) return;
+  addCoins(5 * got.length);
+  if (!st.gotBoard) { st.gotBoard = true; st.inv.merkjatafla = (st.inv.merkjatafla || 0) + 1; }
+  save();
+  setTimeout(() => toast(got.length > 1 ? `${got.length} ný merki! +★${5 * got.length}` : `Nýtt merki: ${got[0]}! +★5`), 950);
+}
+function medalSVG(glyph, color, on) {
+  const dark = ['#2f2840', '#2f8a62', '#e94b3c'].includes(color);
+  return `<svg viewBox="0 0 60 70" xmlns="http://www.w3.org/2000/svg"><path d="M18 2 L26 26 M42 2 L34 26" stroke="${on ? '#e94b3c' : '#d9d3ee'}" stroke-width="8"/><circle cx="30" cy="44" r="23" fill="${on ? color : '#ece9f5'}" stroke="${on ? O : '#c9c2dc'}" stroke-width="2.4"/><circle cx="30" cy="44" r="17" fill="none" stroke="#fff" stroke-width="2" opacity=".6"/>${txt(30, glyph.length > 3 ? 50 : 51, glyph, glyph.replace('︎', '').length > 2 ? 13 : 19, on ? (dark ? '#fff' : O) : '#b9b3cc')}</svg>`;
+}
+function openBadges() {
+  revertTry(); openOv(); st.badges = st.badges || {};
+  const n = BADGES.filter(b => st.badges[b[0]]).length;
+  sheet.innerHTML = `<h2>Merkin mín</h2><p class="muted">Þú ert komin(n) með ${n} af ${BADGES.length} merkjum. Hverju nýju merki fylgja ★ 5.</p>
+    <div class="badges">${BADGES.map(([id, name, desc, val, goal, glyph, color]) => { const on = !!st.badges[id], v = Math.min(val(), goal);
+      return `<div class="badge${on ? ' on' : ''}">${medalSVG(glyph, color, on)}<span class="bn">${name}</span>${on ? `<span class="bd">Fengið ${st.badges[id].split('-').reverse().join('.')}</span>` : `<span class="bd">${desc}</span><div class="bar"><i style="width:${Math.round(v / goal * 100)}%"></i></div><span class="bd">${fmt(v)} af ${fmt(goal)}</span>`}</div>`; }).join('')}</div>
+    <div class="row"><button class="sec2" id="bClose">Loka</button></div>`;
+  $('bClose').onclick = closeOv;
+}
 const SPELL = [['yfirleitt', 'ifirleitt'], ['mynd', 'mind'], ['kirkja', 'kyrkja'], ['fyrir', 'firir'], ['nýtt', 'nítt'], ['lítill', 'lýtill'], ['hvítur', 'kvítur'], ['hvenær', 'kvenær'], ['skyrta', 'skirta'], ['systir', 'sistir'], ['bíll', 'býll'], ['fljúga', 'fljuga'], ['kenna', 'kena'], ['þykkur', 'þikkur'], ['rigning', 'rygning'], ['hjálpa', 'hjálba'], ['mjólk', 'mjólg'], ['dýr', 'dír'], ['lykill', 'likill'], ['spyrja', 'spirja'], ['byrja', 'birja'], ['gaman', 'gamman'], ['sundlaug', 'sunlaug'], ['tunglið', 'tunlið'], ['hestur', 'hesstur'], ['vinur', 'vynur'], ['skólinn', 'skóllinn'], ['hvolpur', 'kvolpur']];
 const EN = [['apple', 'epli'], ['dog', 'hundur'], ['house', 'hús'], ['book', 'bók'], ['water', 'vatn'], ['school', 'skóli'], ['friend', 'vinur'], ['happy', 'glaður'], ['window', 'gluggi'], ['tree', 'tré'], ['bird', 'fugl'], ['cheese', 'ostur'], ['red', 'rauður'], ['sun', 'sól'], ['moon', 'tungl'], ['horse', 'hestur'], ['milk', 'mjólk'], ['bread', 'brauð'], ['chair', 'stóll'], ['shoe', 'skór'], ['blue', 'blár'], ['sister', 'systir'], ['brother', 'bróðir'], ['girl', 'stelpa'], ['fish', 'fiskur'], ['snow', 'snjór'], ['mountain', 'fjall'], ['big', 'stór'], ['small', 'lítill'], ['cat', 'köttur']];
 const FACTS = [
@@ -1442,18 +1519,18 @@ const GEN = {
     ? { t: `Hvað þýðir <b>${en}</b> á íslensku?`, o: shuffle([is, ...pickN(EN.filter(x => x[1] !== is), 3).map(x => x[1])]), a: is, sm: true }
     : { t: `Hvernig segir maður <b>${is}</b> á ensku?`, o: shuffle([en, ...pickN(EN.filter(x => x[0] !== en), 3).map(x => x[0])]), a: en, sm: true }),
   klukka: () => Array.from({ length: 5 }, () => {
-    const h = rnd(1, 12), mm = pick([0, 15, 30, 45, 0, 30, 15, 45, 10, 20, 40, 50, 5, 25, 35, 55]), a = clockFmt(h, mm);
+    const L = adaptOf('klukka').lvl, h = rnd(1, 12), mm = pick(L === 1 ? [0, 30] : L === 2 ? [0, 15, 30, 45] : [0, 15, 30, 45, 10, 20, 40, 50, 5, 25, 35, 55]), a = clockFmt(h, mm);
     const prev = h === 1 ? 12 : h - 1, next = h === 12 ? 1 : h + 1;
     return { t: 'Hvað er klukkan?', vis: clockSVG(h, mm), a, sm: true, o: uniq4(a, [clockFmt(mm === 0 ? 12 : mm / 5, (h % 12) * 5), clockFmt(next, mm), clockFmt(prev, mm), clockFmt(h, (mm + 30) % 60), clockFmt(h, (mm + 15) % 60)].filter(x => x !== a)) };
   }),
   brot: () => Array.from({ length: 5 }, () => {
-    const n = rnd(2, 10), k = rnd(1, n - 1), a = `${k}/${n}`;
+    const L = adaptOf('brot').lvl, n = L === 1 ? rnd(2, 4) : L === 2 ? rnd(2, 8) : rnd(5, 12), k = rnd(1, n - 1), a = `${k}/${n}`;
     const c = [`${n - k}/${n}`, `${k}/${n + 1}`, `${Math.min(k + 1, n)}/${n}`, `${Math.max(k - 1, 1)}/${n}`, `${k}/${Math.max(n - 1, k + 1)}`, `${n}/${k}`].filter(x => x !== a);
     return { t: 'Hvaða brot sýnir bleika hlutann?', vis: pieSVG(n, k), a, o: uniq4(a, c) };
   }),
   island: () => pickN(FACTS, 5).map(([t, a, ...w]) => ({ t, a, o: shuffle([a, ...w]), col: true })),
   runur: () => Array.from({ length: 5 }, () => {
-    const type = pick(['plus', 'plus', 'minus', 'times', 'sq', 'grow']); let seq;
+    const L = adaptOf('runur').lvl, type = pick(L === 1 ? ['plus', 'plus', 'times'] : L === 2 ? ['plus', 'minus', 'times', 'grow'] : ['minus', 'times', 'sq', 'grow', 'plus']); let seq;
     if (type === 'plus') { const a = rnd(1, 20), d = rnd(2, 9); seq = [0, 1, 2, 3, 4].map(i => a + i * d); }
     else if (type === 'minus') { const a = rnd(60, 100), d = rnd(3, 9); seq = [0, 1, 2, 3, 4].map(i => a - i * d); }
     else if (type === 'times') { const a = rnd(1, 5), r = pick([2, 3]); seq = [0, 1, 2, 3, 4].map(i => a * r ** i); }
@@ -1471,7 +1548,7 @@ GEN.daily = () => shuffle(['stafs', 'enska', 'klukka', 'brot', 'island', 'runur'
 });
 function dailyDone(n) {
   const d = st.daily || (st.daily = { last: '', streak: 0 });
-  d.streak = d.last === yKey() ? d.streak + 1 : d.last === dayKey() ? d.streak : 1; d.last = dayKey();
+  d.streak = d.last === yKey() ? d.streak + 1 : d.last === dayKey() ? d.streak : 1; d.last = dayKey(); d.best = Math.max(d.best || 0, d.streak);
   const bonus = 5 * Math.min(d.streak, 7); addCoins(bonus);
   let rare = null;
   if (d.streak % 7 === 0) { const left = RARE.filter(r => !st.collected.includes(r.id)); rare = pick(left.length ? left : RARE); st.inv[rare.id] = (st.inv[rare.id] || 0) + 1; if (!st.collected.includes(rare.id)) st.collected.push(rare.id); }
@@ -1525,7 +1602,7 @@ function chessTap(nm) {
   const [fen, from, to] = m.qs[m.i], [fr, fc] = at(m.sel), piece = m.grid[fr][fc];
   m.locked = true; m.res[m.i] = m.sel === from && nm === to; m.i++;
   if (m.sel === from && nm === to) {
-    m.grid[r][c] = piece; m.grid[fr][fc] = '.'; m.sel = null; m.ok++; m.earned += 5; addCoins(5); save();
+    m.grid[r][c] = piece; m.grid[fr][fc] = '.'; m.sel = null; m.ok++; m.earned += 5; addCoins(5); save(); incStat('skak');
     drawChess('Skák og mát!', { [nm]: 'good', [from]: 'good' });
     $('fb').className = 'fb good'; $('fb').textContent = `${pick(['Snilld!', 'Frábært!', 'Vel gert!', 'Glæsilegt!'])} +★5`;
     setTimeout(chessQ, 1400);
@@ -1665,6 +1742,7 @@ function gStep() {
 }
 function sink() {
   const H = HOLES[g.i]; g.x = H.h[0]; g.y = H.h[1]; g.vx = g.vy = 0; g.moving = false; g.sunk = true;
+  incStat('golf'); if (g.strokes === 1) incStat('hio');
   const want = g.strokes === 1 ? 5 : g.strokes === 2 ? 3 : 0, day = golfToday(), give = Math.min(want, Math.max(0, GOLF_CAP - day.e));
   if (give) { day.e += give; addCoins(give); save(); }
   $('gLeft').textContent = `Stjörnur eftir í dag: ${Math.max(0, GOLF_CAP - day.e)}`;
@@ -1848,7 +1926,7 @@ const dailyDoneToday = () => st.daily?.last === dayKey();
 const dailyStreak = () => { const d = st.daily; if (!d) return 0; return d.last === dayKey() || d.last === yKey() ? d.streak : 0; };
 function renderSchool() {
   const doneT = dailyDoneToday(), sk = dailyStreak();
-  $('view').innerHTML = `<div class="school"><button class="big daily" id="sDaily" ${doneT ? 'disabled' : ''}>${doneT ? 'Áskorun dagsins er búin!' : 'Áskorun dagsins'}<small>${doneT ? 'Komdu aftur á morgun til að halda rununni áfram.' : '5 blandaðar spurningar · ★5 fyrir hvert rétt svar og dagsbónus'} · Dagar í röð: ${sk}</small></button>${SCHOOL.map(([id, n, sub, c]) => `<button class="big" style="background:${c}" data-sk="${id}">${n}<small>${sub}</small></button>`).join('')}</div>`;
+  $('view').innerHTML = `<div class="school"><button class="big daily" id="sDaily" ${doneT ? 'disabled' : ''}>${doneT ? 'Áskorun dagsins er búin!' : 'Áskorun dagsins'}<small>${doneT ? 'Komdu aftur á morgun til að halda rununni áfram.' : '5 blandaðar spurningar · ★5 fyrir hvert rétt svar og dagsbónus'} · Dagar í röð: ${sk}</small></button>${SCHOOL.map(([id, n, sub, c]) => `<button class="big" style="background:${c}" data-sk="${id}">${n}<small>${sub}${ADAPT[id] ? ` · Stig ${id === 'math' ? mathLevel() : adaptOf(id).lvl}` : ''}</small></button>`).join('')}</div>`;
   $('view').querySelectorAll('[data-sk]').forEach(b => b.onclick = () => { const k = b.dataset.sk; k === 'math' ? openMath() : k === 'read' ? openRead() : k === 'skak' ? openChess() : openQuiz(k); });
   if (!doneT) $('sDaily').onclick = () => openQuiz('daily');
 }
@@ -1859,13 +1937,13 @@ function closeOv() { ov.hidden = true; m = null; render(); }
 ov.addEventListener('click', e => { if (e.target === ov) closeOv(); });
 
 /* reikningur */
-const QN = 5, REWARD = { 1: 3, 2: 5, 3: 7 };
-const factors = L => L === 1 ? [rnd(2, 5), rnd(1, 10)] : L === 2 ? [rnd(2, 10), rnd(2, 10)] : [rnd(3, 12), rnd(11, 25)];
+const QN = 5, REWARD = { 1: 3, 2: 5, 3: 7, 4: 9 };
+const factors = L => L === 1 ? [rnd(2, 5), rnd(1, 10)] : L === 2 ? [rnd(2, 10), rnd(2, 10)] : L === 3 ? [rnd(3, 12), rnd(11, 25)] : [rnd(11, 25), rnd(11, 30)];
 function makeQ() {
-  const L = st.level, kind = st.topic === 'mix' ? pick(['add', 'mul', 'div']) : st.topic;
+  const L = mathLevel(), kind = st.topic === 'mix' ? pick(['add', 'mul', 'div']) : st.topic;
   let q;
   if (kind === 'add') {
-    const max = [0, 100, 1000, 10000][L];
+    const max = [0, 100, 1000, 10000, 100000][L];
     if (L >= 2 && Math.random() < 0.25) { const a = rnd(2, max), b = rnd(1, max); q = { text: `${fmt(a)} + ? = ${fmt(a + b)}`, answer: b }; }
     else if (Math.random() < 0.5) { const a = rnd(2, max), b = rnd(1, max); q = { text: `${fmt(a)} + ${fmt(b)} = ?`, answer: a + b }; }
     else { const a = rnd(Math.floor(max / 5), max), b = rnd(1, a); q = { text: `${fmt(a)} − ${fmt(b)} = ?`, answer: a - b }; }
@@ -1886,10 +1964,10 @@ function openMath() { openOv(); mathSetup(); }
 function mathSetup() {
   sheet.innerHTML = `<h2>Reikningur</h2><p class="muted">Fimm dæmi. Ef öll eru rétt færðu ★ 5 í bónus!</p>
     <div class="sec"><h3>Hvað viltu reikna?</h3>${chipRow('topic', [['mix','Blandað'],['add','Plús og mínus'],['mul','Margföldun'],['div','Deiling']], st.topic)}</div>
-    <div class="sec"><h3>Erfiðleikastig</h3>${chipRow('level', [[1,'Létt · ★3'],[2,'Miðlungs · ★5'],[3,'Erfitt · ★7']], st.level)}</div>
+    <div class="sec"><h3>Erfiðleikastig</h3>${chipRow('level', [['auto', `Sjálfvirkt · nú stig ${adaptOf('math').lvl}`], [1,'Létt · ★3'], [2,'Miðlungs · ★5'], [3,'Erfitt · ★7'], [4,'Mjög erfitt · ★9']], st.levelMode === 'manual' ? st.level : 'auto')}<p class="muted" style="margin-top:6px">Sjálfvirkt stig hækkar þegar þér gengur vel og lækkar ef dæmin eru of erfið.</p></div>
     <div class="row"><button class="prim" id="mGo">Byrja</button><button class="sec2" id="mX">Til baka</button></div>`;
   sheet.querySelectorAll('[data-topic]').forEach(b => b.onclick = () => { st.topic = b.dataset.topic; save(); mathSetup(); });
-  sheet.querySelectorAll('[data-level]').forEach(b => b.onclick = () => { st.level = Number(b.dataset.level); save(); mathSetup(); });
+  sheet.querySelectorAll('[data-level]').forEach(b => b.onclick = () => { if (b.dataset.level === 'auto') st.levelMode = 'auto'; else { st.levelMode = 'manual'; st.level = Number(b.dataset.level); } save(); mathSetup(); });
   $('mGo').onclick = () => { m = { type: 'math', i: 0, ok: 0, earned: 0, res: [] }; mathQ(); };
   $('mX').onclick = closeOv; $('mGo').focus();
 }
@@ -1900,7 +1978,7 @@ function mathQ() {
   sheet.innerHTML = `${dots(QN, m.res)}<div class="prob">${m.q.text}</div>
     <div class="answers">${m.q.options.map((o, k) => `<button class="ans" id="ans${k}" data-v="${o}">${fmt(o)}</button>`).join('')}</div>
     <p class="fb" id="fb" aria-live="polite"></p><button class="prim" id="next" hidden>Áfram</button>`;
-  sheet.querySelectorAll('.ans').forEach(b => b.onclick = () => answer(b, Number(b.dataset.v) === m.q.answer, fmt(m.q.answer), REWARD[st.level], mathQ));
+  sheet.querySelectorAll('.ans').forEach(b => b.onclick = () => answer(b, Number(b.dataset.v) === m.q.answer, fmt(m.q.answer), REWARD[mathLevel()], mathQ));
   $('next').onclick = mathQ;
 }
 function mathQStart() { m = { type: 'math', i: 0, ok: 0, earned: 0, res: [] }; mathQ(); }
@@ -1909,8 +1987,10 @@ function answer(b, ok, correctText, reward, nextFn) {
   if (m.locked) return; m.locked = true;
   sheet.querySelectorAll('.ans').forEach(x => { x.disabled = true; if (x.dataset.ok === '1' || (x.dataset.v !== undefined && Number(x.dataset.v) === m.q?.answer)) x.classList.add('right'); });
   m.res[m.i] = ok; m.i++;
+  adaptRecord(m.type, ok);
   const fb = $('fb');
   if (ok) {
+    incStat('rett'); incStat('rett_' + m.type);
     m.ok++; m.earned += reward; addCoins(reward); save();
     fb.className = 'fb good'; fb.textContent = `${pick(['Rétt!', 'Frábært!', 'Snilld!', 'Vel gert!'])} +★${reward}`;
     setTimeout(nextFn, 900);
@@ -1921,7 +2001,8 @@ function answer(b, ok, correctText, reward, nextFn) {
 }
 function done(n, bonusIfAll, againLabel, againFn) {
   let bonus = 0; if (m.ok === n) { bonus = bonusIfAll; addCoins(bonus); save(); }
-  sheet.innerHTML = `<h2>${m.ok === n ? 'Allt rétt!' : m.ok >= n / 2 ? 'Vel gert!' : 'Góð tilraun!'}</h2>
+  const lvlMsg = adaptCheck(m.type);
+  sheet.innerHTML = `<h2>${m.ok === n ? 'Allt rétt!' : m.ok >= n / 2 ? 'Vel gert!' : 'Góð tilraun!'}</h2>${lvlMsg ? `<p class="savehint" style="text-align:center;font-size:16px">${lvlMsg}</p>` : ''}
     <p class="reward">+★ ${m.earned + bonus}</p>
     <p class="muted" style="text-align:center">Þú svaraðir ${m.ok} af ${n} rétt${bonus ? ` og fékkst ★ ${bonus} í bónus` : ''}. Þú átt núna ★ ${fmt(st.coins)}.</p>
     <div class="row"><button class="prim" id="dAgain">${againLabel}</button><button class="sec2" id="dTown">Í bæinn</button></div>`;
