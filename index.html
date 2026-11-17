@@ -117,6 +117,11 @@ h1 { font-family: var(--display); font-weight: 800; font-size: clamp(24px, 6.5vw
 .opt { border: 2px solid var(--line); background: #fff; border-radius: 12px; padding: 8px 12px; font-weight: 800; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
 .opt[aria-pressed="true"] { border-color: var(--coral); background: #fff1ef; }
 .opt .price { color: #b8860b; font-size: 13px; }
+.opts.pics { gap: 10px; }
+.opt.pic { flex-direction: column; gap: 4px; padding: 6px 6px 8px; width: 104px; font-size: 13px; line-height: 1.15; text-align: center; }
+.opt.pic svg { width: 88px; height: 88px; background: #f6f2ff; border-radius: 10px; display: block; }
+.opt.pic[aria-pressed="true"] svg { background: #ffe3de; }
+.opt.pic .price { font-size: 13px; }
 .sw { width: 36px; height: 36px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px var(--line); cursor: pointer; padding: 0; position: relative; }
 .sw[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--coral); }
 .sw .lock { position: absolute; right: -8px; bottom: -6px; background: var(--gold); border-radius: 999px; font-size: 10px; font-weight: 800; padding: 1px 4px; border: 1.5px solid var(--ink); color: var(--ink); }
@@ -1385,7 +1390,8 @@ function renderSquishShop() {
 function renderWardrobe() {
   const W = Object.fromEntries(WARD.map(w => [w.g, w]));
   const colorRow = (list, key, label) => `<div class="sec"><h3>${label}</h3><div class="opts">${list.map((c, i) => `<button class="sw" style="background:${c}" data-col="${key}" data-i="${i}" aria-pressed="${st.av[key] === i}" aria-label="${label} ${i + 1}"></button>`).join('')}</div></div>`;
-  const optRow = w => `<div class="sec"><h3>${w.label}</h3><div class="opts">${w.opts.map(([id, name, price]) => `<button class="opt" data-g="${w.g}" data-id="${id}" aria-pressed="${st.av[w.g] === id}">${name}${isUnlocked(w.g, id, price) ? '' : `<span class="price">★${price}</span>`}</button>`).join('')}</div></div>`;
+  const CROP = { top: '14 46 72 72', bottom: '14 84 72 72', hat: '18 -4 64 64', glasses: '26 14 48 48' };
+  const optRow = w => `<div class="sec"><h3>${w.label}</h3><div class="opts pics">${w.opts.map(([id, name, price]) => `<button class="opt pic" data-g="${w.g}" data-id="${id}" aria-pressed="${st.av[w.g] === id}">${avatarSVG({ ...st.av, [w.g]: id, ...(w.g === 'bottom' && st.av.top === 'kjoll' ? { top: 'bolur' } : {}) }, CROP[w.g])}<span>${name}</span>${isUnlocked(w.g, id, price) ? '' : `<span class="price">★${price}</span>`}</button>`).join('')}</div></div>`;
   $('view').innerHTML = `<div class="house"><div class="preview">${avatarSVG(st.av)}</div><div class="panel">
     ${colorRow(SKIN, 'skin', 'Húðlitur')}${optRow(W.top)}${colorRow(CLOTH, 'topC', 'Litur að ofan')}
     ${st.av.top === 'kjoll' ? '' : optRow(W.bottom) + colorRow(CLOTH, 'botC', 'Litur að neðan')}${optRow(W.hat)}${optRow(W.glasses)}</div></div>`;
