@@ -265,7 +265,10 @@ h1 { font-family: var(--display); font-weight: 800; font-size: clamp(24px, 6.5vw
 .big.speed { grid-column: 1 / -1; background: linear-gradient(90deg, #ffb38a, #ffd34d); }
 .big.villa { grid-column: 1 / -1; background: linear-gradient(90deg, #c9b8ff, #9fd8f5); position: relative; }
 .vbadge { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); background: #ff3b5c; color: #fff; border: 2.5px solid var(--ink, #2f2840); border-radius: 999px; min-width: 40px; height: 40px; display: grid; place-items: center; font-size: 20px; padding: 0 8px; }
-.qvis svg.wide { width: min(440px, 100%); }
+.qvis svg.wide { width: min(520px, 100%); }
+.pinlbl { display: none; }
+.sheet.reveal .pinlbl { display: inline; }
+.pinb { display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; color: #fff; border: 2.5px solid var(--ink); font-size: 20px; }
 .qvis svg.flag { width: min(220px, 62%); border-radius: 4px; }
 .speedtop { display: flex; justify-content: space-between; align-items: center; font-family: var(--display); font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
 .speedbar { height: 12px; border-radius: 6px; background: #ece9f5; overflow: hidden; }
@@ -1619,7 +1622,23 @@ function capQ() {
   const i = rnd(0, FLAGS.length - 1), [, gen, cap] = FLAGS[i];
   return { t: `Hver er höfuðborg ${gen}?`, v: ['flag', i], a: cap, o: uniq4(cap, FLAGS.filter(f => f[2] !== cap).map(f => f[2])), sm: true };
 }
+const PINC = { A: '#e94b3c', B: '#2f6fb0', C: '#2f8a62', D: '#ff8a3d' };
+function iceMap2SVG(ids, target) {
+  const pins = ids.map((i, k) => { const [name, lat, lon] = PLACES[i], [x, y] = icePt(lat, lon), L = 'ABCD'[k], right = x > 150;
+    return `<g data-pin="${L}" style="cursor:pointer"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="11" fill="transparent"/><path d="M${x.toFixed(1)} ${y.toFixed(1)} l-4.2 -7.5 a4.8 4.8 0 1 1 8.4 0Z" fill="${PINC[L]}" stroke="${O}" stroke-width=".8"/><text x="${x.toFixed(1)}" y="${(y - 9.4).toFixed(1)}" text-anchor="middle" font-family="Baloo 2, Trebuchet MS, sans-serif" font-weight="800" font-size="6" fill="#fff">${L}</text><text class="pinlbl" x="${(x + (right ? -6 : 6)).toFixed(1)}" y="${(y + 2).toFixed(1)}" text-anchor="${right ? 'end' : 'start'}" font-family="Baloo 2, Trebuchet MS, sans-serif" font-weight="800" font-size="6.2" fill="${i === target ? '#1f7a4f' : O}" stroke="#fff" stroke-width="1.6" paint-order="stroke">${name}</text></g>`; }).join('');
+  const ref = ids.includes(0) ? '' : (() => { const [x, y] = icePt(64.146, -21.94); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.6" fill="${O}"/><text x="${(x + 3).toFixed(1)}" y="${(y + 5.5).toFixed(1)}" font-family="Baloo 2, Trebuchet MS, sans-serif" font-weight="700" font-size="5" fill="${O}" stroke="#fff" stroke-width="1.2" paint-order="stroke">Reykjavík</text>`; })();
+  return `<svg class="wide" viewBox="0 0 196 140" xmlns="http://www.w3.org/2000/svg"><rect width="196" height="140" rx="8" fill="#bfe3ff"/><path d="${ICE_LAND}" fill="#bfe8b0" stroke="${O}" stroke-width=".8" stroke-linejoin="round"/><path d="${ICE_GLAC}" fill="#fff" stroke="#9ec9e8" stroke-width=".4"/>${ref}<g transform="translate(182 18)"><path d="M0 -9 L3.5 1 L0 -1.5 L-3.5 1Z" fill="${O}"/><text y="8" text-anchor="middle" font-family="Baloo 2, Trebuchet MS, sans-serif" font-weight="800" font-size="6" fill="${O}">N</text></g>${pins}</svg>`;
+}
 function mapQ() {
+  const t = rnd(0, PLACES.length - 1), ids = [t];
+  for (const j of shuffle(PLACES.map((_, k) => k))) {
+    if (ids.length >= 4) break;
+    if (ids.every(i => Math.hypot(...icePt(PLACES[i][1], PLACES[i][2]).map((v, k) => v - icePt(PLACES[j][1], PLACES[j][2])[k])) > 20)) ids.push(j);
+  }
+  const order = shuffle(ids), L = 'ABCD'[order.indexOf(t)];
+  return { t: `Hvar er <b>${PLACES[t][0]}</b> á kortinu?`, v: ['map2', order, t], a: L, o: ['A', 'B', 'C', 'D'].slice(0, order.length), pins: true, sm: true };
+}
+function mapQOld() {
   const i = rnd(0, PLACES.length - 1), [name, lat, lon, kind] = PLACES[i], [x, y] = icePt(lat, lon);
   const far = PLACES.filter(p => p[0] !== name && p[3] === kind && Math.hypot(...icePt(p[1], p[2]).map((v, k) => v - [x, y][k])) > 22).map(p => p[0]);
   return { t: kind === 'b' ? 'Hvaða bær eða staður er merktur á kortinu?' : 'Hvað er merkt á kortinu?', v: ['map', i], a: name, o: uniq4(name, far), sm: true };
@@ -1678,7 +1697,7 @@ function penQ() {
 }
 
 /* ================= villubókin ================= */
-const VIS = { clock: (h, mm) => clockSVG(h, mm), pie: (n, k) => pieSVG(n, k), flag: i => flagSVG(i), map: i => iceMapSVG(i), coins: l => coinsSVG(l) };
+const VIS = { clock: (h, mm) => clockSVG(h, mm), pie: (n, k) => pieSVG(n, k), flag: i => flagSVG(i), map: i => iceMapSVG(i), map2: (ids, t) => iceMap2SVG(ids, t), coins: l => coinsSVG(l) };
 const withVis = q => (q.v && !q.vis ? { ...q, vis: VIS[q.v[0]](...q.v.slice(1)) } : q);
 const VBOX = [1, 3, 7];
 const dayPlus = n => dayKey(new Date(Date.now() + n * 864e5));
@@ -1686,7 +1705,7 @@ const villa = () => (st.villa = st.villa || []);
 const villaDue = () => villa().filter(e => e.due <= dayKey());
 function addMistake(q) {
   if (!q || !q.a) return;
-  const keep = { t: q.t, a: q.a, o: q.o, sm: q.sm, col: q.col, v: q.v };
+  const keep = { t: q.t, a: q.a, o: q.o, sm: q.sm, col: q.col, v: q.v, pins: q.pins };
   if (!q.v && q.vis && q.vis.length < 600) keep.vis = q.vis;
   const id = q.t + '|' + q.a + '|' + (q.v ? JSON.stringify(q.v) : (keep.vis || ''));
   const L = villa(), old = L.find(e => e.id === id);
@@ -1710,7 +1729,7 @@ function openVilla() {
     $('vX').onclick = closeOv; return;
   }
   openOv();
-  m = { type: 'villa', i: 0, ok: 0, earned: 0, res: [], learned: 0, qs: shuffle(due).slice(0, 8).map(e => { const q = withVis(e.q); return { ...q, o: shuffle([...q.o]), _vid: e.id }; }) };
+  m = { type: 'villa', i: 0, ok: 0, earned: 0, res: [], learned: 0, qs: shuffle(due).slice(0, 8).map(e => { const q = withVis(e.q); return { ...q, o: q.pins ? q.o : shuffle([...q.o]), _vid: e.id }; }) };
   quizQ();
 }
 function villaDone(n) {
@@ -1775,9 +1794,11 @@ function quizQ() {
   if (m.i >= n) return kind === 'daily' ? dailyDone(n) : kind === 'villa' ? villaDone(n) : done(n, 5, 'Fleiri spurningar', () => openQuiz(kind));
   const q = m.qs[m.i]; m.locked = false; m.q = null; m.cur = q;
   sheet.innerHTML = `<h2 style="font-size:22px">${name}</h2>${dots(n, m.res)}${q.vis ? `<div class="qvis">${q.vis}</div>` : ''}<p class="qtext" style="text-align:center">${q.t}</p>
-    <div class="answers${q.col ? ' col' : ''}">${q.o.map(o => `<button class="ans${q.sm ? ' sm' : ''}" data-ok="${o === q.a ? 1 : 0}">${o}</button>`).join('')}</div>
+    <div class="answers${q.col ? ' col' : ''}">${q.o.map(o => `<button class="ans${q.sm ? ' sm' : ''}" data-ok="${o === q.a ? 1 : 0}">${q.pins ? `<span class="pinb" style="background:${PINC[o]}">${o}</span>` : o}</button>`).join('')}</div>
     <p class="fb" id="fb" aria-live="polite"></p><button class="prim" id="next" hidden>Áfram</button>`;
-  sheet.querySelectorAll('.ans').forEach(b => b.onclick = () => answer(b, b.dataset.ok === '1', q.a, 5, quizQ));
+  sheet.classList.remove('reveal');
+  sheet.querySelectorAll('.ans').forEach(b => b.onclick = () => answer(b, b.dataset.ok === '1', q.pins ? `${q.a} – ${PLACES[q.v[2]][0]}` : q.a, 5, quizQ));
+  sheet.querySelectorAll('[data-pin]').forEach(p => p.onclick = () => [...sheet.querySelectorAll('.ans')].find(b => b.textContent.trim() === p.dataset.pin)?.click());
   $('next').onclick = quizQ;
 }
 
@@ -2205,6 +2226,7 @@ function answer(b, ok, correctText, reward, nextFn) {
   sheet.querySelectorAll('.ans').forEach(x => { x.disabled = true; if (x.dataset.ok === '1' || (x.dataset.v !== undefined && Number(x.dataset.v) === m.q?.answer)) x.classList.add('right'); });
   m.res[m.i] = ok; m.i++;
   adaptRecord(m.type, ok);
+  if (m.cur?.pins) sheet.classList.add('reveal');
   if (m.type === 'villa') villaResult(m.cur, ok); else if (!ok && m.cur) addMistake(m.cur);
   const fb = $('fb');
   if (ok) {
