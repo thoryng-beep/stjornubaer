@@ -257,6 +257,11 @@ h1 { font-family: var(--display); font-weight: 800; font-size: clamp(24px, 6.5vw
 .flake { animation: fall linear infinite; }
 @keyframes fall { from { transform: translateY(-60px); } to { transform: translateY(720px); } }
 .big.daily { grid-column: 1 / -1; background: linear-gradient(90deg, #ffd34d, #ff9fb8); }
+.big.speed { grid-column: 1 / -1; background: linear-gradient(90deg, #ffb38a, #ffd34d); }
+.speedtop { display: flex; justify-content: space-between; align-items: center; font-family: var(--display); font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
+.speedbar { height: 12px; border-radius: 6px; background: #ece9f5; overflow: hidden; }
+.speedbar i { display: block; height: 100%; background: linear-gradient(90deg, #4fc59a, #ffd34d); transition: width .1s linear; }
+.speedbar.low i { background: #ff6f61; }
 .big.daily:disabled { background: #e3f8ef; cursor: default; box-shadow: 0 5px 0 #9fd7bd; border-color: #9fd7bd; }
 .garden { border-radius: 22px; border: 3px solid var(--ink); background: linear-gradient(#bfe3ff 0 22%, #8fd49e 22%); padding: 56px 14px 14px; position: relative; }
 .garden::before { content: ""; position: absolute; left: 0; right: 0; top: 18%; height: 14px; background: repeating-linear-gradient(90deg, #fff 0 8px, transparent 8px 22px); opacity: .9; }
@@ -1440,6 +1445,8 @@ const BADGES = [
   ['runur', 'Mynsturmeistari', '20 rétt í talnarunum', () => statOf('rett_runur'), 20, '123', '#ffd34d'],
   ['skak', 'Skákmaður', '10 skákþrautir leystar', () => statOf('skak'), 10, '♞︎', '#c9c2dc'],
   ['skak2', 'Stórmeistari', '40 skákþrautir leystar', () => statOf('skak'), 40, '♛︎', '#9a92b8'],
+  ['hradi', 'Hraðreiknir', 'Náðu 20 réttum í einni hraðaáskorun', () => Math.max(0, ...Object.values(st.speedBest || {})), 20, '20', '#ffb38a'],
+  ['hradi30', 'Eldsnögg', 'Náðu 30 réttum í einni hraðaáskorun', () => Math.max(0, ...Object.values(st.speedBest || {})), 30, '30', '#ff6f61'],
   ['runa3', 'Þrír dagar í röð', 'Kláraðu áskorun dagsins 3 daga í röð', () => Math.max(st.daily?.best || 0, st.daily?.streak || 0), 3, '3', '#ff8fc1'],
   ['runa7', 'Heil vika', 'Kláraðu áskorun dagsins 7 daga í röð', () => Math.max(st.daily?.best || 0, st.daily?.streak || 0), 7, '7', '#e94b3c'],
   ['hio', 'Hola í höggi', 'Farðu holu í höggi í minigolfi', () => statOf('hio'), 1, '1', '#4fc59a'],
@@ -1926,9 +1933,10 @@ const dailyDoneToday = () => st.daily?.last === dayKey();
 const dailyStreak = () => { const d = st.daily; if (!d) return 0; return d.last === dayKey() || d.last === yKey() ? d.streak : 0; };
 function renderSchool() {
   const doneT = dailyDoneToday(), sk = dailyStreak();
-  $('view').innerHTML = `<div class="school"><button class="big daily" id="sDaily" ${doneT ? 'disabled' : ''}>${doneT ? 'Áskorun dagsins er búin!' : 'Áskorun dagsins'}<small>${doneT ? 'Komdu aftur á morgun til að halda rununni áfram.' : '5 blandaðar spurningar · ★5 fyrir hvert rétt svar og dagsbónus'} · Dagar í röð: ${sk}</small></button>${SCHOOL.map(([id, n, sub, c]) => `<button class="big" style="background:${c}" data-sk="${id}">${n}<small>${sub}${ADAPT[id] ? ` · Stig ${id === 'math' ? mathLevel() : adaptOf(id).lvl}` : ''}</small></button>`).join('')}</div>`;
+  $('view').innerHTML = `<div class="school"><button class="big daily" id="sDaily" ${doneT ? 'disabled' : ''}>${doneT ? 'Áskorun dagsins er búin!' : 'Áskorun dagsins'}<small>${doneT ? 'Komdu aftur á morgun til að halda rununni áfram.' : '5 blandaðar spurningar · ★5 fyrir hvert rétt svar og dagsbónus'} · Dagar í röð: ${sk}</small></button><button class="big speed" id="sSpeed">Hraðaáskorun<small>Margföldunartaflan á 60 sekúndum · Hve mörg dæmi nærðu?</small></button>${SCHOOL.map(([id, n, sub, c]) => `<button class="big" style="background:${c}" data-sk="${id}">${n}<small>${sub}${ADAPT[id] ? ` · Stig ${id === 'math' ? mathLevel() : adaptOf(id).lvl}` : ''}</small></button>`).join('')}</div>`;
   $('view').querySelectorAll('[data-sk]').forEach(b => b.onclick = () => { const k = b.dataset.sk; k === 'math' ? openMath() : k === 'read' ? openRead() : k === 'skak' ? openChess() : openQuiz(k); });
   if (!doneT) $('sDaily').onclick = () => openQuiz('daily');
+  $('sSpeed').onclick = openSpeed;
 }
 const ov = $('ov'), sheet = $('sheet');
 let m = null;
@@ -2009,6 +2017,64 @@ function done(n, bonusIfAll, againLabel, againFn) {
   $('dAgain').onclick = againFn;
   $('dTown').onclick = () => { ov.hidden = true; m = null; go('town'); };
   $('dAgain').focus();
+}
+
+/* ---- hraðaáskorun ---- */
+const SPEED_MS = 60000, SPEED_CAP = 20;
+const speedToday = () => { if (!st.speedDay || st.speedDay.d !== dayKey()) st.speedDay = { d: dayKey(), e: 0 }; return st.speedDay; };
+const tblName = t => t === 'allar' ? 'allar töflur' : `${t}-taflan`;
+function openSpeed() {
+  openOv(); st.speedBest = st.speedBest || {}; st.speedTbl = st.speedTbl || 'allar';
+  const best = st.speedBest[st.speedTbl] || 0;
+  sheet.innerHTML = `<h2>Hraðaáskorun</h2><p class="muted">Þú hefur 60 sekúndur. Svaraðu eins mörgum margföldunardæmum og þú getur! Þú færð ★ 1 fyrir hver tvö rétt svör og ★ 5 í bónus þegar þú slærð metið þitt.</p>
+    <div class="sec"><h3>Veldu töflu</h3>${chipRow('tbl', [['allar', 'Allar'], ...[2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => [n, String(n)])], st.speedTbl)}</div>
+    <p class="qtext" style="text-align:center">${best ? `Metið þitt í ${tblName(st.speedTbl)}: ${best} rétt` : `Ekkert met ennþá í ${tblName(st.speedTbl)}`}</p>
+    <div class="row"><button class="prim" id="spGo">Byrja!</button><button class="sec2" id="spX">Til baka</button></div>`;
+  sheet.querySelectorAll('[data-tbl]').forEach(b => b.onclick = () => { st.speedTbl = b.dataset.tbl === 'allar' ? 'allar' : Number(b.dataset.tbl); save(); openSpeed(); });
+  $('spGo').onclick = speedStart; $('spX').onclick = closeOv; $('spGo').focus();
+}
+function speedQ() {
+  const t = st.speedTbl; let a, b;
+  do { a = t === 'allar' ? rnd(2, 10) : t; b = rnd(1, 10); } while (m.last === `${a}x${b}`);
+  m.last = `${a}x${b}`; if (Math.random() < .5) [a, b] = [b, a];
+  const ans = a * b, opts = uniq4(String(ans), [ans + a, ans - a, ans + b, ans - b, ans + 1, ans - 1, (a + 1) * b, a * (b + 1)].filter(x => x > 0 && x !== ans).map(String));
+  m.q = { a, b, ans }; m.locked = false;
+  $('spProb').textContent = `${a} × ${b}`;
+  $('spAns').innerHTML = opts.map(o => `<button class="ans" data-v="${o}">${o}</button>`).join('');
+  $('spAns').querySelectorAll('.ans').forEach(btn => btn.onclick = () => speedAnswer(btn));
+}
+function speedStart() {
+  m = { type: 'hradi', ok: 0, wrong: 0, end: Date.now() + SPEED_MS, tok: Math.random() };
+  sheet.innerHTML = `<div class="speedtop"><span id="spTime">60</span><span>Rétt: <b id="spOk">0</b></span></div><div class="speedbar" id="spBar"><i style="width:100%"></i></div>
+    <div class="prob" id="spProb"></div><div class="answers" id="spAns"></div><p class="fb" id="fb"></p>`;
+  speedQ();
+  const tok = m.tok, iv = setInterval(() => {
+    if (!m || m.tok !== tok || ov.hidden) return clearInterval(iv);
+    const left = Math.max(0, m.end - Date.now());
+    $('spTime').textContent = Math.ceil(left / 1000); $('spBar').firstElementChild.style.width = (left / SPEED_MS * 100) + '%'; $('spBar').classList.toggle('low', left < 10000);
+    if (!left) { clearInterval(iv); speedDone(); }
+  }, 100);
+}
+function speedAnswer(btn) {
+  if (m.locked || Date.now() >= m.end) return; m.locked = true;
+  const ok = Number(btn.dataset.v) === m.q.ans, fb = $('fb');
+  if (ok) { m.ok++; $('spOk').textContent = m.ok; btn.classList.add('right'); fb.className = 'fb good'; fb.textContent = pick(['Rétt!', 'Já!', 'Flott!', 'Snilld!']); setTimeout(() => m && m.type === 'hradi' && speedQ(), 160); }
+  else { m.wrong++; btn.classList.add('wrong'); $('spAns').querySelector(`[data-v="${m.q.ans}"]`)?.classList.add('right'); fb.className = 'fb bad'; fb.textContent = `${m.q.a} × ${m.q.b} = ${m.q.ans}`; setTimeout(() => m && m.type === 'hradi' && speedQ(), 900); }
+}
+function speedDone() {
+  const t = st.speedTbl, best = st.speedBest[t] || 0, rec = m.ok > best, day = speedToday();
+  const want = Math.floor(m.ok / 2), give = Math.min(want, Math.max(0, SPEED_CAP - day.e)), bonus = rec && m.ok > 0 ? 5 : 0;
+  if (rec) st.speedBest[t] = m.ok;
+  day.e += give; addCoins(give + bonus); save();
+  if (m.ok) { incStat('rett', m.ok); incStat('rett_math', m.ok); } else checkBadges();
+  sheet.innerHTML = `<h2>${rec && m.ok ? 'Nýtt met!' : 'Tíminn er búinn!'}</h2><p class="reward" style="color:var(--ink)">${m.ok} rétt</p>
+    <p class="muted" style="text-align:center">${tblName(t).replace(/^./, c => c.toUpperCase())}. ${rec && best ? `Gamla metið var ${best}.` : !rec ? `Metið þitt er ${best}.` : ''} ${m.wrong ? `Röng svör: ${m.wrong}.` : 'Ekkert rangt svar!'}</p>
+    <p class="reward">+★ ${give + bonus}</p>
+    ${want > give ? '<p class="muted" style="text-align:center">Stjörnur dagsins úr hraðaáskorun eru búnar, en metið gildir samt!</p>' : ''}
+    <div class="row"><button class="prim" id="spAgain">Reyna aftur</button><button class="sec2" id="spPick">Velja töflu</button><button class="sec2" id="spTown">Í bæinn</button></div>`;
+  $('spAgain').onclick = speedStart; $('spPick').onclick = openSpeed;
+  $('spTown').onclick = () => { ov.hidden = true; m = null; go('town'); };
+  $('spAgain').focus();
 }
 
 /* lestur */
