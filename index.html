@@ -446,6 +446,8 @@ const PETS = [
   { id:'baeli', name:'Dýrabæli', price:10, w:24, kind:'flat', vb:'0 0 90 40', svg:`<ellipse cx="45" cy="26" rx="42" ry="13" fill="#ff8fc1" ${S}/><ellipse cx="45" cy="23" rx="30" ry="8" fill="#ffd1e3" ${S1}/>${[20, 45, 70].map(x => `<circle cx="${x}" cy="32" r="2" fill="#fff"/>`).join('')}`},
 ].map(p => ({ ...p, pet: !['matarskal', 'baeli'].includes(p.id) }));
 const SPORT = [
+  { id:'bikar', name:'Bikar', price:15, w:9, vb:'0 0 50 64', svg:`<path d="M12 8 H38 V22 Q38 38 25 40 Q12 38 12 22Z" fill="#ffd34d" ${S}/><path d="M12 12 Q2 12 4 22 Q6 30 14 30 M38 12 Q48 12 46 22 Q44 30 36 30" stroke="${O}" stroke-width="2.4" fill="none"/><rect x="21" y="40" width="8" height="10" fill="#f2c94c" ${S1}/><rect x="13" y="50" width="24" height="10" rx="2" fill="#8a5a33" ${S}/>${star(25, 22, 6, '#fff')}` },
+  { id:'trefill', name:'Stuðningstrefill', price:8, w:22, kind:'wall', vb:'0 0 100 30', svg:`<rect x="6" y="6" width="88" height="18" fill="#e94b3c" ${S}/>${[18, 34, 50, 66, 82].map(x => `<rect x="${x}" y="6.8" width="8" height="16.4" fill="#fff"/>`).join('')}<rect x="6" y="6" width="88" height="18" fill="none" ${S}/><path d="M6 8 L1 6 M6 15 L1 15 M6 22 L1 24 M94 8 L99 6 M94 15 L99 15 M94 22 L99 24" stroke="${O}" stroke-width="1.6"/>` },
   { id:'fotbolti', name:'Fótbolti', price:6, w:6, vb:'0 0 40 40', bounce:true, svg:`<circle cx="20" cy="20" r="17" fill="#fff" ${S}/><polygon points="20,13 26.5,17.7 24,25.3 16,25.3 13.5,17.7" fill="${O}"/><path d="M20 13 V4 M26.5 17.7 L35 15 M24 25.3 L29 33 M16 25.3 L11 33 M13.5 17.7 L5 15" stroke="${O}" stroke-width="1.6"/>` },
   { id:'mark', name:'Fótboltamark', price:18, w:34, vb:'0 0 120 80', svg:`<g stroke="#c9c2dc" stroke-width="1.2">${Array.from({ length: 11 }, (_, i) => `<path d="M${12 + i * 9.6} 10 V74"/>`).join('')}${Array.from({ length: 7 }, (_, i) => `<path d="M8 ${16 + i * 9.6} H112"/>`).join('')}</g><path d="M8 76 V8 H112 V76" stroke="#fff" stroke-width="7" fill="none"/><path d="M8 76 V8 H112 V76" stroke="${O}" stroke-width="1.6" fill="none"/>` },
   { id:'treyjurammi', name:'Treyja í ramma', price:12, w:14, kind:'wall', vb:'0 0 64 72', svg:`<rect x="3" y="3" width="58" height="66" rx="4" fill="#fff" ${S}/><rect x="9" y="9" width="46" height="54" fill="#e8f4ff"/><path d="M18 22 L26 16 H38 L46 22 L42 30 L40 28 V54 H24 V28 L22 30Z" fill="#2f6fb0" ${S1}/><path d="M27 22 V54 M37 22 V54" stroke="#fff" stroke-width="3"/><text x="32" y="44" text-anchor="middle" font-family="Baloo 2, Trebuchet MS, sans-serif" font-weight="800" font-size="12" fill="#fff" stroke="${O}" stroke-width=".6">10</text>` },
@@ -512,18 +514,19 @@ const HACC = { g:'hacc', label:'Hárskraut', opts:[['ekkert','Ekkert',0],['slauf
 const CLOTH = ['#ff6f91', '#ffb84d', '#5ec9a8', '#6fa8ff', '#b48cff', '#ffffff', '#2f3a56', '#e94b3c'];
 const WARD = [
   { g:'hair', label:'Hárgreiðsla', opts:[['stutt','Stutt',0],['sitt','Sítt',0],['tagl','Tagl',0],['bob','Bob',6],['snudar','Snúðar',8],['hnutur','Hnútur',8],['hestahali','Hátt tagl',8],['krullur','Krullur',8],['flettur','Fléttur',10]] },
-  { g:'top', label:'Að ofan', opts:[['bolur','Bolur',0],['hetta','Hettupeysa',10],['kjoll','Kjóll',12],['lopi','Lopapeysa',15],['treyja','Fótboltatreyja',20]] },
-  { g:'bottom', label:'Að neðan', opts:[['buxur','Buxur',0],['pils','Pils',0],['stutt','Stuttbuxur',0]] },
-  { g:'hat', label:'Á höfuðið', opts:[['ekkert','Ekkert',0],['hufa','Húfa',8],['der','Derhúfa',8],['blom','Blómakrans',12],['koruna','Kóróna',25]] },
-  { g:'glasses', label:'Gleraugu', opts:[['engin','Engin',0],['gler','Gleraugu',6],['sol','Sólgleraugu',10]] },
+  { g:'top', label:'Að ofan', opts:[['bolur','Bolur',0],['hetta','Hettupeysa',10],['kjoll','Kjóll',12],['lopi','Lopapeysa',15],['treyja','Fótboltatreyja',20],['stjornubolur','Stjörnubolur',8],['hjartabolur','Hjartabolur',8],['rendur','Röndótt peysa',10],['ulpa','Úlpa',18]] },
+  { g:'bottom', label:'Að neðan', opts:[['buxur','Buxur',0],['pils','Pils',0],['stutt','Stuttbuxur',0],['galla','Gallabuxur',6],['doppur','Doppóttar buxur',8],['tutu','Ballettpils',10]] },
+  { g:'shoes', label:'Skór', opts:[['venjulegir','Venjulegir',0],['striga','Strigaskór',6],['stigvel','Stígvél',8],['takka','Takkaskór',10],['glimmer','Glimmerskór',12]] },
+  { g:'hat', label:'Á höfuðið', opts:[['ekkert','Ekkert',0],['hufa','Húfa',8],['der','Derhúfa',8],['blom','Blómakrans',12],['kisa','Kisueyru',10],['solhattur','Sólhattur',10],['jola','Jólasveinahúfa',8],['koruna','Kóróna',25]] },
+  { g:'glasses', label:'Gleraugu', opts:[['engin','Engin',0],['gler','Gleraugu',6],['sol','Sólgleraugu',10],['hjarta','Hjartagleraugu',10],['stjornu','Stjörnugleraugu',12]] },
 ];
 const MAKEUP = [
-  { g:'lip', label:'Varalitur', opts:[['ekkert','Enginn',0],['bleikur','Bleikur',4,'#ff6f9f'],['raudur','Rauður',6,'#e2333f'],['ferskja','Ferskja',4,'#ff9f80'],['fjola','Fjólublár',8,'#9b5de5'],['gloss','Glimmergloss',10,'#ff9fd0'],['ferskjugloss','Ferskjugloss',6,'#ffa98a'],['berjasmyrsl','Berjasmyrsl',6,'#d9667f']] },
-  { g:'eye', label:'Augnskuggi', opts:[['ekkert','Enginn',0],['bleikur','Bleikur',4,'#ff9fd0'],['blar','Blár',4,'#6fa8ff'],['fjola','Fjólublár',6,'#b48cff'],['graenn','Grænn',6,'#5ec9a8'],['gull','Gull',8,'#f2c94c']] },
-  { g:'lash', label:'Augnhár', opts:[['venjuleg','Venjuleg',0],['long','Löng augnhár',6]] },
-  { g:'blush', label:'Kinnalitur', opts:[['lettur','Léttur',0,'#ff8fa3'],['sterkur','Sterkur',4,'#ff5d8f'],['ferskja','Ferskja',4,'#ffa47a'],['enginn','Enginn',0]] },
-  { g:'facep', label:'Andlitsskraut', opts:[['ekkert','Ekkert',0],['freknur','Freknur',4],['stjornur','Stjörnur',6],['hjarta','Hjarta',6],['glimmer','Glimmer',8],['maski','Gúrkumaski',6]] },
-  { g:'nails', label:'Naglalakk', opts:[['ekkert','Ekkert',0],['bleikt','Bleikt',3,'#ff6f9f'],['rautt','Rautt',3,'#e2333f'],['blatt','Blátt',3,'#6fa8ff'],['gull','Gull',6,'#f2c94c'],['regnbogi','Regnbogi',8,'rainbow']] },
+  { g:'lip', label:'Varalitur', opts:[['ekkert','Enginn',0],['bleikur','Bleikur',4,'#ff6f9f'],['raudur','Rauður',6,'#e2333f'],['ferskja','Ferskja',4,'#ff9f80'],['fjola','Fjólublár',8,'#9b5de5'],['gloss','Glimmergloss',10,'#ff9fd0'],['ferskjugloss','Ferskjugloss',6,'#ffa98a'],['berjasmyrsl','Berjasmyrsl',6,'#d9667f'],['koral','Kórall',4,'#ff7f6a'],['nude','Ljósbrúnn',4,'#d99a83'],['ploma','Plóma',6,'#8e3b6b'],['blagloss','Blátt gloss',10,'#5aa0ff']] },
+  { g:'eye', label:'Augnskuggi', opts:[['ekkert','Enginn',0],['bleikur','Bleikur',4,'#ff9fd0'],['blar','Blár',4,'#6fa8ff'],['fjola','Fjólublár',6,'#b48cff'],['graenn','Grænn',6,'#5ec9a8'],['gull','Gull',8,'#f2c94c'],['ferskja','Ferskja',4,'#ffb38a'],['silfur','Silfur',6,'#cfd6e4']] },
+  { g:'lash', label:'Augnhár', opts:[['venjuleg','Venjuleg',0],['long','Löng augnhár',6],['litud','Blá augnhár',8]] },
+  { g:'blush', label:'Kinnalitur', opts:[['lettur','Léttur',0,'#ff8fa3'],['sterkur','Sterkur',4,'#ff5d8f'],['ferskja','Ferskja',4,'#ffa47a'],['fjola','Fjólublár',4,'#c58cff'],['enginn','Enginn',0]] },
+  { g:'facep', label:'Andlitsskraut', opts:[['ekkert','Ekkert',0],['freknur','Freknur',4],['stjornur','Stjörnur',6],['hjarta','Hjarta',6],['glimmer','Glimmer',8],['regnbogi','Regnbogi',8],['fidrildi','Fiðrildi',8],['kisa','Kisuandlit',6],['maski','Gúrkumaski',6]] },
+  { g:'nails', label:'Naglalakk', opts:[['ekkert','Ekkert',0],['bleikt','Bleikt',3,'#ff6f9f'],['rautt','Rautt',3,'#e2333f'],['blatt','Blátt',3,'#6fa8ff'],['gull','Gull',6,'#f2c94c'],['graent','Grænt',3,'#5ec9a8'],['fjolu','Fjólublátt',3,'#b48cff'],['glimmer','Glimmer',6,'#ffd6ef'],['regnbogi','Regnbogi',8,'rainbow']] },
 ];
 const MK = Object.fromEntries(MAKEUP.map(m => [m.g, Object.fromEntries(m.opts.map(o => [o[0], o[3]]))]));
 function avatarSVG(a, vb = '0 0 100 152') {
@@ -539,30 +542,45 @@ function avatarSVG(a, vb = '0 0 100 152') {
   if (a.hair === 'hestahali') s += `<path d="M58 14 Q88 2 86 38 Q84 58 74 66 Q80 40 62 24Z" fill="${hc}" ${S}/>`;
   if (a.hair === 'krullur') s += [[30,32,13],[70,32,13],[50,16,16],[27,50,10],[73,50,10]].map(([x,y,r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${hc}" ${S}/>`).join('');
   s += `<rect x="39" y="98" width="9" height="48" rx="4" fill="${skin}" ${S}/><rect x="52" y="98" width="9" height="48" rx="4" fill="${skin}" ${S}/>`;
-  s += `<ellipse cx="42" cy="148" rx="8.5" ry="4.5" fill="${O}"/><ellipse cx="58" cy="148" rx="8.5" ry="4.5" fill="${O}"/>`;
   if (!dress) {
     if (a.bottom === 'buxur') s += `<path d="M37 96 H63 V144 H52 V112 H48 V144 H37Z" fill="${bc}" ${S}/>`;
     if (a.bottom === 'stutt') s += `<path d="M37 96 H63 V118 H52 V112 H48 V118 H37Z" fill="${bc}" ${S}/>`;
     if (a.bottom === 'pils') s += `<path d="M38 96 H62 L69 124 H31Z" fill="${bc}" ${S}/>`;
+    if (a.bottom === 'galla') s += `<path d="M37 96 H63 V144 H52 V112 H48 V144 H37Z" fill="#4a6fa5" ${S}/><path d="M40 100 Q43 105 47 101 M53 101 Q57 105 60 100 M44 138 V143 M56 138 V143" stroke="#ffd34d" stroke-width="1" fill="none" stroke-dasharray="1.6 1.4"/><circle cx="50" cy="99" r="1.2" fill="#ffd34d"/>`;
+    if (a.bottom === 'doppur') { const dc = bc === '#ffffff' ? '#ff6f91' : '#fff'; s += `<path d="M37 96 H63 V144 H52 V112 H48 V144 H37Z" fill="${bc}" ${S}/>` + [[41,101],[49,104],[58,101],[42,112],[59,112],[41,124],[58,124],[43,136],[57,136],[54,106]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="1.7" fill="${dc}"/>`).join(''); }
+    if (a.bottom === 'tutu') s += `<path d="M36 96 H64 L74 116 Q68 121 62 117 Q56 122 50 117 Q44 122 38 117 Q32 121 26 116Z" fill="${bc}" opacity=".55" ${S}/><path d="M37 96 H63 L69 110 Q64 114 59 110 Q54 114 50 110 Q46 114 41 110 Q36 114 31 110Z" fill="${bc}" ${S}/>`;
   }
-  const longS = a.top === 'hetta' || a.top === 'lopi';
+  const sh = a.shoes || 'venjulegir';
+  if (sh === 'stigvel') s += `<rect x="37.5" y="128" width="12" height="18" rx="3" fill="#ffd34d" ${S}/><rect x="50.5" y="128" width="12" height="18" rx="3" fill="#ffd34d" ${S}/>`;
+  const shc = { venjulegir: O, striga: '#fff', stigvel: '#ffd34d', takka: '#1d1d26', glimmer: '#ff8fc1' }[sh] || O;
+  s += `<ellipse cx="42" cy="148" rx="8.5" ry="4.5" fill="${shc}" ${sh === 'venjulegir' ? '' : S1}/><ellipse cx="58" cy="148" rx="8.5" ry="4.5" fill="${shc}" ${sh === 'venjulegir' ? '' : S1}/>`;
+  if (sh === 'striga') s += `<path d="M36 148 H48 M52 148 H64" stroke="#6fa8ff" stroke-width="2"/><circle cx="44" cy="145.5" r=".9" fill="${O}"/><circle cx="60" cy="145.5" r=".9" fill="${O}"/>`;
+  if (sh === 'takka') s += `<path d="M39 146 Q43 149 48 146 M55 146 Q59 149 64 146" stroke="#ffd34d" stroke-width="1.6" fill="none"/>` + [37, 41, 45, 53, 57, 61].map(x => `<rect x="${x - .8}" y="152" width="1.6" height="2.2" fill="${O}"/>`).join('');
+  if (sh === 'glimmer') s += [[38,147],[43,149],[46,146],[55,147],[59,149],[62,146]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r=".9" fill="#fff"/>`).join('');
+  const longS = ['hetta', 'lopi', 'rendur', 'ulpa'].includes(a.top);
   s += `<rect x="23" y="65" width="10" height="38" rx="5" fill="${longS ? tc : skin}" ${S}/><rect x="67" y="65" width="10" height="38" rx="5" fill="${longS ? tc : skin}" ${S}/>`;
   if (!longS) s += `<rect x="21.5" y="62" width="13" height="16" rx="5" fill="${tc}" ${S}/><rect x="65.5" y="62" width="13" height="16" rx="5" fill="${tc}" ${S}/>`;
   s += `<circle cx="28" cy="105" r="5" fill="${skin}" ${S}/><circle cx="72" cy="105" r="5" fill="${skin}" ${S}/>`;
   const nc = MK.nails[a.nails];
   if (nc) { const rb = ['#ff6f61', '#ffd34d', '#5ec9a8', '#6fa8ff', '#b48cff', '#ff8fc1']; let k = 0;
-    for (const hx of [28, 72]) for (const dx of [-2.8, 0, 2.8]) s += `<ellipse cx="${hx + dx}" cy="${dx === 0 ? 109.2 : 108.4}" rx="1.25" ry="1.5" fill="${nc === 'rainbow' ? rb[k++] : nc}" stroke="${O}" stroke-width=".5"/>`; }
+    for (const hx of [28, 72]) for (const dx of [-2.8, 0, 2.8]) s += `<ellipse cx="${hx + dx}" cy="${dx === 0 ? 109.2 : 108.4}" rx="1.25" ry="1.5" fill="${nc === 'rainbow' ? rb[k++] : nc}" stroke="${O}" stroke-width=".5"/>${a.nails === 'glimmer' ? `<circle cx="${hx + dx - .3}" cy="${dx === 0 ? 108.8 : 108}" r=".4" fill="#fff"/>` : ''}`; }
   if (dress) s += `<path d="M34 62 H66 V82 L75 124 H25 L34 82Z" fill="${tc}" ${S}/><path d="M34 82 H66" stroke="${O}" stroke-width="2"/>`;
   else s += `<path d="M33 66 Q33 62 38 62 H62 Q67 62 67 66 V100 H33Z" fill="${tc}" ${S}/>`;
   if (a.top === 'treyja') {
     const c2 = JCOL[J.c2];
     if (J.p === 'rendur') s += [36.5, 44.5, 52.5, 60.5].map(x => `<rect x="${x}" y="62.6" width="4.5" height="37" fill="${c2}"/>`).join('');
     if (J.p === 'helmingar') s += `<path d="M50 62 H62 Q67 62 67 66 V100 H50Z" fill="${c2}"/>`;
+    if (J.p === 'ska') s += `<polygon points="33,64 41,62 67,90 67,100 60,100 33,72" fill="${c2}"/>`;
+    if (J.p === 'axlir') s += `<rect x="21.5" y="62" width="13" height="12" rx="5" fill="${c2}" ${S1}/><rect x="65.5" y="62" width="13" height="12" rx="5" fill="${c2}" ${S1}/><path d="M33.8 63 H66.2 V68 H33.8Z" fill="${c2}"/>`;
     if (J.p === 'thver') s += [68, 80, 92].map(y => `<rect x="33" y="${y}" width="34" height="5" fill="${c2}"/>`).join('');
     s += `<rect x="21.5" y="74" width="13" height="4" fill="${c2}" ${S1}/><rect x="65.5" y="74" width="13" height="4" fill="${c2}" ${S1}/>`;
     s += `<path d="M33 66 Q33 62 38 62 H62 Q67 62 67 66 V100 H33Z" fill="none" ${S}/><path d="M44 62 L50 69 L56 62" fill="none" stroke="${c2 === tc ? O : c2}" stroke-width="2.4"/>`;
     s += `<text x="58" y="83" text-anchor="middle" font-family="Baloo 2, Trebuchet MS, sans-serif" font-weight="800" font-size="10" fill="${['#ffffff', '#ffd34d'].includes(tc) ? '#1d1d26' : '#fff'}" stroke="${O}" stroke-width=".5">${J.n}</text>`;
   }
+  if (a.top === 'stjornubolur') s += star(50, 80, 8, '#ffd34d');
+  if (a.top === 'hjartabolur') s += `<path d="M50 90 C41 84 40 78 43 75.5 C46 73 49 75 50 77 C51 75 54 73 57 75.5 C60 78 59 84 50 90Z" fill="${tc === '#ff6f91' || tc === '#e94b3c' ? '#fff' : '#ff5d8f'}" stroke="${O}" stroke-width="1"/>`;
+  if (a.top === 'rendur') { const rc = tc === '#ffffff' ? '#2f3a56' : '#ffffff'; s += [70, 78, 86, 94].map(y => `<rect x="33.8" y="${y}" width="32.4" height="3.6" fill="${rc}"/>`).join('') + [74, 84, 94].map(y => `<rect x="23.8" y="${y}" width="8.4" height="3" fill="${rc}"/><rect x="67.8" y="${y}" width="8.4" height="3" fill="${rc}"/>`).join(''); }
+  if (a.top === 'ulpa') s += `<path d="M34 74 H66 M34 86 H66 M24 78 H32 M68 78 H76 M24 90 H32 M68 90 H76" stroke="rgba(0,0,0,.2)" stroke-width="1.6"/><path d="M50 64 V100" stroke="${O}" stroke-width="1.6"/><rect x="48.6" y="70" width="2.8" height="4" rx="1" fill="#cfd6e4" ${S1}/><path d="M36 62 Q50 70 64 62 L64 58 Q50 64 36 58Z" fill="${tc}" ${S}/>`;
   if (a.top === 'hetta') s += `<path d="M42 86 H58 L56 96 H44Z" fill="rgba(0,0,0,.08)" ${S1}/><path d="M38 62 Q50 76 62 62" fill="none" ${S}/>`;
   if (a.top === 'lopi') {
     const pc = tc === '#ffffff' ? '#2f3a56' : '#ffffff';
@@ -572,16 +590,19 @@ function avatarSVG(a, vb = '0 0 100 152') {
   const eyeC = MK.eye[a.eye], lipC = MK.lip[a.lip], blC = MK.blush[a.blush];
   if (eyeC) s += `<ellipse cx="42" cy="37.4" rx="5.2" ry="4.2" fill="${eyeC}" opacity=".85"/><ellipse cx="58" cy="37.4" rx="5.2" ry="4.2" fill="${eyeC}" opacity=".85"/>`;
   s += `<ellipse cx="42" cy="40" rx="2.6" ry="3.3" fill="${O}"/><ellipse cx="58" cy="40" rx="2.6" ry="3.3" fill="${O}"/><circle cx="43" cy="38.6" r=".9" fill="#fff"/><circle cx="59" cy="38.6" r=".9" fill="#fff"/>`;
-  if (a.lash === 'long') s += `<path d="M39.6 37.6 L36.6 35.6 M41 36.9 L39.4 34.2 M42.8 36.7 L42.6 33.8 M60.4 37.6 L63.4 35.6 M59 36.9 L60.6 34.2 M57.2 36.7 L57.4 33.8" stroke="${O}" stroke-width="1.3" stroke-linecap="round"/>`;
+  if (a.lash === 'long' || a.lash === 'litud') s += `<path d="M39.6 37.6 L36.6 35.6 M41 36.9 L39.4 34.2 M42.8 36.7 L42.6 33.8 M60.4 37.6 L63.4 35.6 M59 36.9 L60.6 34.2 M57.2 36.7 L57.4 33.8" stroke="${a.lash === 'litud' ? '#3d7be0' : O}" stroke-width="${a.lash === 'litud' ? 1.6 : 1.3}" stroke-linecap="round"/>`;
   if (blC) s += `<circle cx="36.5" cy="47" r="3.8" fill="${blC}" opacity="${a.blush === 'lettur' ? .5 : .75}"/><circle cx="63.5" cy="47" r="3.8" fill="${blC}" opacity="${a.blush === 'lettur' ? .5 : .75}"/>`;
   if (a.facep === 'freknur') s += [[45,44.5],[47.5,46],[44,47.5],[55,44.5],[52.5,46],[56,47.5]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r=".8" fill="#a8714c"/>`).join('');
   if (a.facep === 'stjornur') s += star(65, 44, 3.4, '#ffd34d') + star(62, 49.5, 2, '#ff8fc1') + star(68.5, 49, 1.6, '#6fa8ff');
   if (a.facep === 'hjarta') s += `<path d="M64 50 C60 47 59.5 44.5 61 43.3 C62.4 42.2 63.6 43 64 44 C64.4 43 65.6 42.2 67 43.3 C68.5 44.5 68 47 64 50Z" fill="#ff5d8f" stroke="${O}" stroke-width=".6"/>`;
   if (a.facep === 'glimmer') s += [[34,43,'#fff'],[37,49,'#ffd34d'],[40,45.5,'#ff9fd0'],[66,43,'#fff'],[63,49,'#ffd34d'],[60,45.5,'#ff9fd0'],[50,30,'#fff']].map(([x,y,c]) => star(x, y, 1.5, c).replace('stroke-width=".6"', 'stroke-width=".3"')).join('');
+  if (a.facep === 'regnbogi') s += ['#ff6f61', '#ffd34d', '#5ec9a8', '#6fa8ff'].map((c, i) => `<path d="M${58 + i * 1.4} 49 A${8 - i * 1.4} ${8 - i * 1.4} 0 0 1 ${74 - i * 1.4} 49" stroke="${c}" stroke-width="1.5" fill="none"/>`).join('');
+  if (a.facep === 'fidrildi') s += `<g transform="translate(66 31) rotate(15)"><ellipse cx="-3" cy="-2" rx="3.4" ry="4.4" fill="#b48cff" stroke="${O}" stroke-width=".6"/><ellipse cx="3" cy="-2" rx="3.4" ry="4.4" fill="#b48cff" stroke="${O}" stroke-width=".6"/><ellipse cx="-2.4" cy="3" rx="2.2" ry="2.6" fill="#ff9fd0" stroke="${O}" stroke-width=".6"/><ellipse cx="2.4" cy="3" rx="2.2" ry="2.6" fill="#ff9fd0" stroke="${O}" stroke-width=".6"/><path d="M0 -5 V5" stroke="${O}" stroke-width="1.1"/></g>`;
+  if (a.facep === 'kisa') s += `<path d="M48 44 H52 L50 46.4Z" fill="#ff6f91" stroke="${O}" stroke-width=".6"/><path d="M30 44 L39 45.5 M30 48 L39 47.5 M70 44 L61 45.5 M70 48 L61 47.5" stroke="${O}" stroke-width=".9" stroke-linecap="round"/>`;
   if (a.facep === 'maski') s += `<circle cx="50" cy="39" r="19.5" fill="#a8e6a0" opacity=".92"/>` + [42, 58].map(x => `<circle cx="${x}" cy="39.5" r="6.2" fill="#e6f7c8" stroke="#4fb477" stroke-width="2.2"/><circle cx="${x}" cy="39.5" r="2.4" fill="none" stroke="#c3e3a0" stroke-width="1"/>`).join('');
   if (lipC) {
     s += `<path d="M43.5 48 Q50 56 56.5 48 Q53 49.6 50 48.6 Q47 49.6 43.5 48Z" fill="${lipC}" stroke="${O}" stroke-width="1.5" stroke-linejoin="round"/>`;
-    if (['gloss', 'ferskjugloss', 'berjasmyrsl'].includes(a.lip)) s += `<ellipse cx="52.5" cy="51" rx="1.4" ry=".6" fill="#fff" opacity=".8"/>`;
+    if (['gloss', 'ferskjugloss', 'berjasmyrsl', 'blagloss'].includes(a.lip)) s += `<ellipse cx="52.5" cy="51" rx="1.4" ry=".6" fill="#fff" opacity=".8"/>`;
   } else s += `<path d="M44 48 Q50 54 56 48" stroke="${O}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
   if (a.hair === 'flettur') s += [27, 73].map(x => [46, 55, 64, 73, 82].map(y => `<ellipse cx="${x}" cy="${y}" rx="5.5" ry="5.2" fill="${hc}" ${S1}/>`).join('') + `<circle cx="${x}" cy="89" r="3.2" fill="#ff6f91" ${S1}/>`).join('');
   if (a.hair === 'krullur') s += [[32,26],[40,18],[50,15],[60,18],[68,26]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="8" fill="${hc}" ${S}/>`).join('');
@@ -594,9 +615,14 @@ function avatarSVG(a, vb = '0 0 100 152') {
   if (a.hat === 'hufa') s += `<path d="M27 32 Q27 8 50 8 Q73 8 73 32Z" fill="#e94b3c" ${S}/><rect x="25" y="27" width="50" height="10" rx="4" fill="#fff" ${S}/><path d="M28 32 L32 29 L36 33 L40 29 L44 33 L48 29 L52 33 L56 29 L60 33 L64 29 L68 33 L72 30" stroke="#e94b3c" stroke-width="1.8" fill="none"/><circle cx="50" cy="7" r="6" fill="#fff" ${S}/>`;
   if (a.hat === 'der') s += `<path d="M28 30 Q28 10 50 10 Q72 10 72 30Z" fill="#6fa8ff" ${S}/><path d="M50 27 Q68 22 86 29 Q68 34 50 32Z" fill="#4a86e0" ${S}/>`;
   if (a.hat === 'koruna') s += `<polygon points="31,24 35,6 43,16 50,2 57,16 65,6 69,24" fill="#ffd34d" ${S}/><circle cx="50" cy="18" r="2.6" fill="#ff6f91"/><circle cx="40" cy="20" r="2" fill="#6fa8ff"/><circle cx="60" cy="20" r="2" fill="#5ec9a8"/>`;
+  if (a.hat === 'kisa') s += `<polygon points="28,28 31,6 45,18" fill="${hc}" ${S}/><polygon points="72,28 69,6 55,18" fill="${hc}" ${S}/><polygon points="31.5,22 32.5,11 40,18" fill="#ff9fd0"/><polygon points="68.5,22 67.5,11 60,18" fill="#ff9fd0"/>`;
+  if (a.hat === 'solhattur') s += `<ellipse cx="50" cy="27" rx="35" ry="7" fill="#f6d38a" ${S}/><path d="M32 27 Q32 6 50 6 Q68 6 68 27Z" fill="#f6d38a" ${S}/><path d="M32.5 22 H67.5" stroke="#ff6f91" stroke-width="4"/><circle cx="64" cy="21" r="3.4" fill="#fff" ${S1}/>`;
+  if (a.hat === 'jola') s += `<path d="M28 30 Q34 6 54 6 Q72 8 80 21 L74 25 Q68 16 72 30Z" fill="#e94b3c" ${S}/><rect x="25" y="26" width="50" height="9" rx="4.5" fill="#fff" ${S}/><circle cx="79" cy="22" r="5" fill="#fff" ${S}/>`;
   if (a.hat === 'blom') s += [[29,27,'#ff8fc1'],[37,18,'#ffd34d'],[50,14,'#fff'],[63,18,'#ff8fc1'],[71,27,'#ffd34d']].map(([x,y,c]) => `<circle cx="${x}" cy="${y}" r="5.5" fill="${c}" ${S1}/><circle cx="${x}" cy="${y}" r="1.8" fill="#ff8a3d"/>`).join('');
   if (a.glasses === 'gler') s += `<circle cx="42" cy="40" r="6.5" fill="rgba(255,255,255,.25)" ${S}/><circle cx="58" cy="40" r="6.5" fill="rgba(255,255,255,.25)" ${S}/><path d="M48.5 40 H51.5" ${S}/>`;
   if (a.glasses === 'sol') s += `<rect x="34" y="35" width="14" height="10" rx="4" fill="#2f3a56" ${S1}/><rect x="52" y="35" width="14" height="10" rx="4" fill="#2f3a56" ${S1}/><path d="M48 39 H52" ${S}/><path d="M37 38 L40 37" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>`;
+  if (a.glasses === 'hjarta') s += [42, 58].map(x => `<path d="M${x} 47 C${x - 9} 41 ${x - 8} 33 ${x - 4} 33 C${x - 2} 33 ${x} 35 ${x} 37 C${x} 35 ${x + 2} 33 ${x + 4} 33 C${x + 8} 33 ${x + 9} 41 ${x} 47Z" fill="#ff5d8f" fill-opacity=".75" ${S1}/>`).join('') + `<path d="M48.5 38 H51.5" ${S1}/>`;
+  if (a.glasses === 'stjornu') s += star(42, 40, 8.5, '#ffd34d') + star(58, 40, 8.5, '#ffd34d') + `<circle cx="42" cy="40.5" r="2.2" fill="${O}"/><circle cx="58" cy="40.5" r="2.2" fill="${O}"/>`;
   return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
 }
 
@@ -754,7 +780,7 @@ const fresh = () => ({
   coins: 15, uid: 2, view: 'town', cur: 'kofi', topic: 'mix', level: 2, moved: false,
   homes: { kofi: startHome() }, at: 'h:kofi', mapSeen: false,
   inv: {}, collected: [], unlocked: [], readNext: 0,
-  av: { skin: 1, hair: 'sitt', hairC: 0, top: 'bolur', topC: 0, bottom: 'buxur', botC: 6, hat: 'ekkert', glasses: 'engin',
+  av: { skin: 1, hair: 'sitt', hairC: 0, top: 'bolur', topC: 0, bottom: 'buxur', botC: 6, hat: 'ekkert', glasses: 'engin', shoes: 'venjulegir',
     lip: 'ekkert', eye: 'ekkert', lash: 'venjuleg', blush: 'lettur', facep: 'ekkert', nails: 'ekkert', hacc: 'ekkert' },
 });
 let st = fresh();
@@ -1390,11 +1416,11 @@ function renderSquishShop() {
 function renderWardrobe() {
   const W = Object.fromEntries(WARD.map(w => [w.g, w]));
   const colorRow = (list, key, label) => `<div class="sec"><h3>${label}</h3><div class="opts">${list.map((c, i) => `<button class="sw" style="background:${c}" data-col="${key}" data-i="${i}" aria-pressed="${st.av[key] === i}" aria-label="${label} ${i + 1}"></button>`).join('')}</div></div>`;
-  const CROP = { top: '14 46 72 72', bottom: '14 84 72 72', hat: '18 -4 64 64', glasses: '26 14 48 48' };
+  const CROP = { top: '14 46 72 72', bottom: '14 84 72 72', shoes: '28 120 44 44', hat: '14 -6 72 72', glasses: '26 14 48 48' };
   const optRow = w => `<div class="sec"><h3>${w.label}</h3><div class="opts pics">${w.opts.map(([id, name, price]) => `<button class="opt pic" data-g="${w.g}" data-id="${id}" aria-pressed="${st.av[w.g] === id}">${avatarSVG({ ...st.av, [w.g]: id, ...(w.g === 'bottom' && st.av.top === 'kjoll' ? { top: 'bolur' } : {}) }, CROP[w.g])}<span>${name}</span>${isUnlocked(w.g, id, price) ? '' : `<span class="price">★${price}</span>`}</button>`).join('')}</div></div>`;
   $('view').innerHTML = `<div class="house"><div class="preview">${avatarSVG(st.av)}</div><div class="panel">
     ${colorRow(SKIN, 'skin', 'Húðlitur')}${optRow(W.top)}${colorRow(CLOTH, 'topC', 'Litur að ofan')}
-    ${st.av.top === 'kjoll' ? '' : optRow(W.bottom) + colorRow(CLOTH, 'botC', 'Litur að neðan')}${optRow(W.hat)}${optRow(W.glasses)}</div></div>`;
+    ${st.av.top === 'kjoll' ? '' : optRow(W.bottom) + colorRow(CLOTH, 'botC', 'Litur að neðan')}${optRow(W.shoes)}${optRow(W.hat)}${optRow(W.glasses)}</div></div>`;
   $('view').querySelectorAll('[data-col]').forEach(b => b.onclick = () => { revertTry(); st.av[b.dataset.col] = Number(b.dataset.i); save(); renderWardrobe(); });
   $('view').querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
     const w = W[b.dataset.g], [id, name, price] = w.opts.find(o => o[0] === b.dataset.id);
@@ -1404,7 +1430,8 @@ function renderWardrobe() {
 
 function renderMakeup() {
   const M = Object.fromEntries(MAKEUP.map(m => [m.g, m]));
-  const optRow = w => `<div class="sec"><h3>${w.label}</h3><div class="opts">${w.opts.map(([id, name, price, c]) => `<button class="opt" data-g="${w.g}" data-id="${id}" aria-pressed="${st.av[w.g] === id}">${c ? `<span style="width:14px;height:14px;border-radius:50%;border:1.5px solid ${O};background:${c === 'rainbow' ? 'conic-gradient(#ff6f61,#ffd34d,#5ec9a8,#6fa8ff,#b48cff,#ff6f61)' : c}"></span>` : ''}${name}${isUnlocked(w.g, id, price) ? '' : `<span class="price">★${price}</span>`}</button>`).join('')}</div></div>`;
+  const CROP = { lip: '38 36 24 24', eye: '32 24 36 36', lash: '33 24 34 34', blush: '26 24 48 48', facep: '24 14 52 52', nails: '20.5 99.5 15 15' };
+  const optRow = w => `<div class="sec"><h3>${w.label}</h3><div class="opts pics">${w.opts.map(([id, name, price]) => `<button class="opt pic" data-g="${w.g}" data-id="${id}" aria-pressed="${st.av[w.g] === id}">${avatarSVG({ ...st.av, [w.g]: id, ...(w.g !== 'glasses' ? { glasses: 'engin' } : {}), ...(w.g !== 'facep' && st.av.facep === 'maski' ? { facep: 'ekkert' } : {}) }, CROP[w.g])}<span>${name}</span>${isUnlocked(w.g, id, price) ? '' : `<span class="price">★${price}</span>`}</button>`).join('')}</div></div>`;
   $('view').innerHTML = `<div class="house">
     <div class="mkprev"><div class="face">${avatarSVG(st.av, '24 8 52 52')}</div><div>${avatarSVG(st.av)}</div></div>
     <div class="panel">
@@ -1652,16 +1679,17 @@ const jerOf = () => (st.av.jer = { p: 'rendur', c1: 0, c2: 2, n: 10, ...(st.av.j
 function renderFootball() {
   const J = jerOf(), prev = { ...st.av, top: 'treyja', jer: J };
   const owned = isUnlocked('top', 'treyja', 20), wearing = st.av.top === 'treyja';
-  const PAT = [['einlit', 'Einlit'], ['rendur', 'Rendur'], ['helmingar', 'Helmingar'], ['thver', 'Þverrendur']];
+  const PAT = [['einlit', 'Einlit'], ['rendur', 'Rendur'], ['helmingar', 'Helmingar'], ['thver', 'Þverrendur'], ['ska', 'Skáborði'], ['axlir', 'Litaðar axlir']];
   const sw = key => `<div class="opts">${JCOL.map((c, i) => `<button class="sw" style="background:${c}" data-jc="${key}" data-i="${i}" aria-pressed="${J[key] === i}" aria-label="Litur ${i + 1}"></button>`).join('')}</div>`;
   const act = owned ? (wearing ? '<p class="muted">Þú ert í treyjunni. Allar breytingar sjást strax.</p>' : '<button class="prim" id="jWear" style="width:100%">Fara í treyjuna</button>') : '<button class="prim" id="jBuy" style="width:100%">Kaupa treyjuna · ★ 20</button>';
   $('view').innerHTML = `<div class="house"><div class="mkprev" style="background:#e3f6ec"><div class="face">${avatarSVG(prev, '20 52 60 54')}</div><div>${avatarSVG(prev)}</div></div>
     <div class="panel"><p class="muted">Hannaðu þína eigin fótboltatreyju! Treyjan kostar ★ 20, og eftir það geturðu breytt henni eins oft og þú vilt.</p>
-      <div class="sec"><h3>Mynstur</h3><div class="opts">${PAT.map(([id, n]) => `<button class="opt" data-jp="${id}" aria-pressed="${J.p === id}">${n}</button>`).join('')}</div></div>
+      <div class="sec"><h3>Mynstur</h3><div class="opts pics">${PAT.map(([id, n]) => `<button class="opt pic" data-jp="${id}" aria-pressed="${J.p === id}">${avatarSVG({ ...prev, jer: { ...J, p: id } }, '18 54 64 64')}<span>${n}</span></button>`).join('')}</div></div>
       <div class="sec"><h3>Aðallitur</h3>${sw('c1')}</div>
       <div class="sec"><h3>Aukalitur</h3>${sw('c2')}</div>
       <div class="sec"><h3>Númer</h3><div class="opts" style="align-items:center">${[1, 7, 9, 10, 11, 23].map(n => `<button class="opt" data-jn="${n}" aria-pressed="${J.n === n}">${n}</button>`).join('')}<input class="nameinp" id="jNum" type="number" min="0" max="99" inputmode="numeric" value="${J.n}" aria-label="Annað númer" style="width:90px;padding:8px"></div></div>
       ${act}
+      <div class="sec"><h3>Skór og buxur</h3><div class="opts pics">${[['takka', 'Takkaskór', 10], ['striga', 'Strigaskór', 6], ['venjulegir', 'Venjulegir', 0]].map(([id, n, pr]) => `<button class="opt pic" data-fshoe="${id}" data-n="${n}" data-p="${pr}" aria-pressed="${st.av.shoes === id}">${avatarSVG({ ...prev, shoes: id }, '28 120 44 44')}<span>${n}</span>${isUnlocked('shoes', id, pr) ? '' : `<span class="price">★${pr}</span>`}</button>`).join('')}</div></div>
       <div class="row"><button class="sec2" id="jShorts" aria-pressed="${st.av.bottom === 'stutt'}">${st.av.bottom === 'stutt' ? 'Þú ert í stuttbuxum' : 'Fara í stuttbuxur'}</button></div>
       <div class="sec"><h3>Fótboltadót í herbergið</h3>${shopGrid(SPORT, { bg: '#e3f6ec' })}</div></div></div>`;
   const V = $('view'), set = () => { save(); renderFootball(); };
@@ -1671,6 +1699,7 @@ function renderFootball() {
   $('jNum').onchange = () => { const v = Math.max(0, Math.min(99, Math.round(Number($('jNum').value) || 0))); J.n = v; set(); };
   $('jBuy')?.addEventListener('click', () => spend(20, 'Kaupa fótboltatreyjuna fyrir ★ 20?', () => { st.unlocked.push('top:treyja'); st.av.top = 'treyja'; toast('Flott treyja!'); renderFootball(); }));
   $('jWear')?.addEventListener('click', () => { st.av.top = 'treyja'; set(); });
+  V.querySelectorAll('[data-fshoe]').forEach(b => b.onclick = () => tryOn('shoes', b.dataset.fshoe, b.dataset.n, Number(b.dataset.p), renderFootball));
   $('jShorts').onclick = () => { st.av.bottom = st.av.bottom === 'stutt' ? 'buxur' : 'stutt'; set(); };
   bindShop(renderFootball);
 }
